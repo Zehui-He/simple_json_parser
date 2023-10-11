@@ -1,6 +1,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <variant>
 
 #pragma once 
 
@@ -9,62 +10,72 @@ using JsonObj = std::unordered_map<std::string, JsonValue>;
 
 class JsonValue {
 public:
-    union Data {
-        int i;
-        double d;
-        std::unique_ptr<JsonObj> j;
-        std::unique_ptr<std::string> s;
+    using Data = std::variant<int, double, std::unique_ptr<JsonObj>, std::unique_ptr<std::string>>;
 
-        Data() {};
-        ~Data() {};
-        // Data is not copyable 
-        Data(Data&) = delete;
-    } data;
-
+    Data data;
     enum DataType {
         INT,
         DOUBLE,
         JSON,
-        STRING
+        STRING,
+        NONE
     } type;
 
     // JsonValue is not copyable 
     JsonValue(JsonValue&) = delete;
-
-    // Move constructor for JsonValue
-    JsonValue(JsonValue&& other) noexcept : type(other.type) {
-        switch (type) {
-            case INT:
-                data.i = other.data.i;
-                break;
-            case DOUBLE:
-                data.d = other.data.d;
-                break;
-            case JSON:
-                data.j = std::move(other.data.j);
-                break;
-            case STRING:
-                data.s = std::move(other.data.s);
-                break;
-        }
-    }
+    JsonValue& operator=(JsonValue&) = delete;
 
     JsonValue(int data) : type(INT) {
-        this->data.i = data;
+        this->data = data;
     }
 
     JsonValue(double data) {
-        this->data.d = data;
+        this->data = data;
         type = DOUBLE;
     }
 
     JsonValue(JsonObj&& data) {
-        this->data.j = std::make_unique<JsonObj>(std::move(data));
+        this->data = std::make_unique<JsonObj>(std::move(data));
         type = JSON;
     }
 
     JsonValue(std::string&& data) {
-        this->data.s = std::make_unique<std::string>(std::move(data));
+        this->data = std::make_unique<std::string>(std::move(data));
         type = STRING;
+    }
+
+    // Move constructor 
+    JsonValue(JsonValue&& other) noexcept : type(other.type) {
+        data = std::move(other.data);
+        switch (type) {
+            case INT:
+                other.data = -1;
+                break;
+            case DOUBLE:
+                other.data = -1;
+                break;
+            case JSON:
+                other.data = std::unique_ptr<JsonObj>(); // Set the pointer as nullptr 
+                break;
+            case STRING:
+                other.data = std::unique_ptr<JsonObj>();
+                break;
+        }
+        other.type = NONE;
+    }
+
+    // Destructor 
+    ~JsonValue() {
+        switch (type) {
+            case INT:
+            case DOUBLE:
+                break;
+            case JSON:
+                std::get<std::unique_ptr<JsonObj>>(data).reset();
+                break;
+            case STRING:
+                std::get<std::unique_ptr<JsonObj>>(data).reset();
+                break;
+        }
     }
 };

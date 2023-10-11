@@ -57,6 +57,7 @@ JsonObj parseIntoJson(std::string& content) {
     return res;
 }
 
+// Note: this is a super naive but recursive approach. 
 JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end) {
     int is_sub_json = false;
     int quotation_count = 0;

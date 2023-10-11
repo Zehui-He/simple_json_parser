@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -f a.out
-g++ -g main.cpp src/helper.cpp
+rm -f *.out 
+g++ -g -Wall -Wextra -pedantic main.cpp src/helper.cpp -o json_parser.out 
