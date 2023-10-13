@@ -1,9 +1,10 @@
+#pragma once 
+
 #include <string>
 #include <unordered_map>
 #include <memory>
 #include <variant>
 
-#pragma once 
 
 class JsonValue;
 using JsonObj = std::unordered_map<std::string, JsonValue>;
