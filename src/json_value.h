@@ -5,9 +5,7 @@
 #include <memory>
 #include <variant>
 
-
-class JsonValue;
-using JsonObj = std::unordered_map<std::string, JsonValue>;
+class JsonObj;
 
 class JsonValue {
 public:
@@ -26,57 +24,12 @@ public:
     JsonValue(JsonValue&) = delete;
     JsonValue& operator=(JsonValue&) = delete;
 
-    JsonValue(int data) : type(INT) {
-        this->data = data;
-    }
-
-    JsonValue(double data) {
-        this->data = data;
-        type = DOUBLE;
-    }
-
-    JsonValue(JsonObj&& data) {
-        this->data = std::make_unique<JsonObj>(std::move(data));
-        type = JSON;
-    }
-
-    JsonValue(std::string&& data) {
-        this->data = std::make_unique<std::string>(std::move(data));
-        type = STRING;
-    }
-
+    JsonValue(int data);
+    JsonValue(double data);
+    JsonValue(JsonObj&& data);
+    JsonValue(std::string&& data);
     // Move constructor 
-    JsonValue(JsonValue&& other) noexcept : type(other.type) {
-        data = std::move(other.data);
-        switch (type) {
-            case INT:
-                other.data = -1;
-                break;
-            case DOUBLE:
-                other.data = -1;
-                break;
-            case JSON:
-                other.data = std::unique_ptr<JsonObj>(); // Set the pointer as nullptr 
-                break;
-            case STRING:
-                other.data = std::unique_ptr<JsonObj>();
-                break;
-        }
-        other.type = NONE;
-    }
-
+    JsonValue(JsonValue&& other) noexcept;
     // Destructor 
-    ~JsonValue() {
-        switch (type) {
-            case INT:
-            case DOUBLE:
-                break;
-            case JSON:
-                std::get<std::unique_ptr<JsonObj>>(data).reset();
-                break;
-            case STRING:
-                std::get<std::unique_ptr<JsonObj>>(data).reset();
-                break;
-        }
-    }
+    ~JsonValue();
 };

@@ -1,8 +1,10 @@
+#pragma once 
+
 #include <fstream>
 #include <string>
 #include "json_value.h"
+#include "json_obj.h"
 
-#pragma once 
 
 // Extract the content of the json file and store as a string, 
 // removing any unnecessary tabs, spaces and new line characters. 

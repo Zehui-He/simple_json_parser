@@ -1,5 +1,5 @@
-#include "parser.h"
 #include <iostream>
+#include "parser.h"
 
 std::string extractContnet(std::string json_name) {
     std::string content;
@@ -73,7 +73,7 @@ JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_
                 JsonObj j_obj = iterIntoJson(it_begin,it_end);
                 JsonValue val(std::move(j_obj));
                 std::string attribute{attribute_buffer};
-                res.emplace(attribute, std::move(val));
+                res.emplace(std::move(attribute), std::move(val));
             }
             is_sub_json = true;
         }
@@ -104,7 +104,8 @@ JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_
         else if (*it_begin == ',') {
             read_value = false;
             value_buffer = str;
-            res.emplace(std::move(parseIntoPair(attribute_buffer, value_buffer)));
+            auto [key, val] = parseIntoPair(attribute_buffer, value_buffer);
+            res.emplace(std::move(key), std::move(val));
             str.clear();
         }
         else {
