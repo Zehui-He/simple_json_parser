@@ -23,6 +23,9 @@ public:
         return data_.emplace(std::forward<K>(key), std::move(value));
     }
 
+    // Print the content of the JsonObj
+    void show() const;
+
     Iterator begin();
     Iterator end();
 };

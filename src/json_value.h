@@ -32,4 +32,14 @@ public:
     JsonValue(JsonValue&& other) noexcept;
     // Destructor 
     ~JsonValue();
+    // Give a const reference of the data 
+    template <typename T>
+    const T& read() const {
+        return std::get<T>(data);
+    }
+    // Give a reference of the data 
+    template <typename T>
+    T& read() {
+        return std::get<T>(data);
+    }
 };
