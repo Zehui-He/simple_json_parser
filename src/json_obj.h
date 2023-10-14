@@ -17,7 +17,11 @@ public:
     JsonObj& operator=(JsonObj&) = default;
     JsonObj& operator=(JsonObj&&) = default;
 
-    void emplace(std::string&& key, JsonValue&& value);
+    // This would allow the key constructed with whatever type that can be converted to std::string
+    template <typename K>
+    std::pair<Iterator, bool> emplace(K&& key, JsonValue&& value) {
+        return data_.emplace(std::forward<K>(key), std::move(value));
+    }
 
     Iterator begin();
     Iterator end();
