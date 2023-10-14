@@ -58,6 +58,7 @@ JsonValue::~JsonValue() {
         case NONE:
             break;
         default:
+            throw std::runtime_error("A new type of JsonValue::DataType is added but not handled in JsonValue::~JsonValue()");
             break;
     }
 }
