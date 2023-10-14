@@ -10,6 +10,14 @@ JsonObj::Iterator JsonObj::end() {
     return data_.end();
 }
 
+JsonObj::Const_iterator JsonObj::begin() const {
+    return data_.begin();
+}
+
+JsonObj::Const_iterator JsonObj::end() const {
+    return data_.end();
+}
+
 void JsonObj::show() const {
     for (auto it = data_.begin(); it != data_.end(); ++it) {
         switch (it->second.type)

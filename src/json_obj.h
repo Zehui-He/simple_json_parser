@@ -9,6 +9,7 @@ private:
     std::unordered_map<std::string, JsonValue> data_;
 public:
     using Iterator = std::unordered_map<std::string, JsonValue>::iterator;
+    using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;
     JsonObj() = default;
     ~JsonObj() = default;
     // Allow copy and move 
@@ -28,4 +29,6 @@ public:
 
     Iterator begin();
     Iterator end();
+    Const_iterator begin() const;
+    Const_iterator end() const;
 };
