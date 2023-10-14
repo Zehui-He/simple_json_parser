@@ -39,7 +39,7 @@ public:
     }
     // Give a reference of the data 
     template <typename T>
-    T& read() {
+    T& get() {
         return std::get<T>(data);
     }
 };
