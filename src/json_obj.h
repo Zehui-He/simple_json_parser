@@ -4,31 +4,33 @@
 #include <string>
 #include "json_value.h"
 
-class JsonObj {
-private:
-    std::unordered_map<std::string, JsonValue> data_;
-public:
-    using Iterator = std::unordered_map<std::string, JsonValue>::iterator;
-    using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;
-    JsonObj() = default;
-    ~JsonObj() = default;
-    // Allow copy and move 
-    JsonObj(JsonObj&) = default;
-    JsonObj(JsonObj&&) = default;
-    JsonObj& operator=(JsonObj&) = default;
-    JsonObj& operator=(JsonObj&&) = default;
+namespace json_parser {
+    class JsonObj {
+    private:
+        std::unordered_map<std::string, JsonValue> data_;
+    public:
+        using Iterator = std::unordered_map<std::string, JsonValue>::iterator;
+        using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;
+        JsonObj() = default;
+        ~JsonObj() = default;
+        // Allow copy and move 
+        JsonObj(JsonObj&) = default;
+        JsonObj(JsonObj&&) = default;
+        JsonObj& operator=(JsonObj&) = default;
+        JsonObj& operator=(JsonObj&&) = default;
 
-    // This would allow the key constructed with whatever type that can be converted to std::string
-    template <typename K>
-    std::pair<Iterator, bool> emplace(K&& key, JsonValue&& value) {
-        return data_.emplace(std::forward<K>(key), std::move(value));
-    }
+        // This would allow the key constructed with whatever type that can be converted to std::string
+        template <typename K>
+        std::pair<Iterator, bool> emplace(K&& key, JsonValue&& value) {
+            return data_.emplace(std::forward<K>(key), std::move(value));
+        }
 
-    // Print the content of the JsonObj
-    void show() const;
+        // Print the content of the JsonObj
+        void show() const;
 
-    Iterator begin();
-    Iterator end();
-    Const_iterator begin() const;
-    Const_iterator end() const;
-};
+        Iterator begin();
+        Iterator end();
+        Const_iterator begin() const;
+        Const_iterator end() const;
+    };
+}
