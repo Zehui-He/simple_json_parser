@@ -2,6 +2,31 @@
 #include "parser.h"
 
 namespace json_parser {
+    template <typename T>
+    struct parsing_trait {
+        static JsonValue intoJson(std::string& value_str) {
+            return 0;
+        };
+    };
+
+    template <>
+    struct parsing_trait<int>
+    {
+        static JsonValue intoJson(std::string& value_str) {
+            int val = std::atoi(value_str.c_str());
+            return val;
+        };
+    };
+
+    template <>
+    struct parsing_trait<std::string>
+    {
+        static JsonValue intoJson(std::string& value_str) {
+            std::string val = value_str;
+            return val;
+        };
+    };
+
     std::string extractContnet(std::string json_name) {
         std::string content;
         unsigned int quotation_count = 0;
@@ -54,73 +79,67 @@ namespace json_parser {
     JsonObj parseIntoJson(std::string& content) {
         auto it_begin = content.begin();
         auto it_end = content.end();
-        JsonObj res = iterIntoJson(it_begin,it_end);
+        auto stack = std::stack<char>{};
+        JsonObj res = iterIntoJson(it_begin,it_end,stack);
         return res;
     }
 
     // Note: this is a super naive but recursive approach. 
-    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end) {
-        int is_sub_json = false;
-        int quotation_count = 0;
-        bool read_value = false;
-        std::string attribute_buffer{};
-        std::string value_buffer{}; 
-        std::string str{};
+    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end, std::stack<char>& stack) {
+        stack.push('{');
+        it_begin++;
+        std::string token{};
+        std::string attribute_buff{};
+        std::string value_buff{};
         JsonObj res{};
 
         while (it_begin != it_end) {
             if (*it_begin == '{') {
-                if (is_sub_json) {
-                    JsonObj j_obj = iterIntoJson(it_begin,it_end);
-                    JsonValue val(std::move(j_obj));
-                    std::string attribute{attribute_buffer};
-                    res.emplace(std::move(attribute), std::move(val));
-                }
-                is_sub_json = true;
+                JsonObj j_obj = iterIntoJson(it_begin, it_end, stack);
+                JsonValue j_val{std::move(j_obj)};
+                res.emplace(attribute_buff, std::move(j_val));
             }
             else if (*it_begin == '}') {
-                read_value = false;
-                value_buffer = str;
-                JsonValue j_val{std::atoi(value_buffer.c_str())};
-                auto s = std::string(attribute_buffer);
-                res.emplace(std::move(s), std::move(j_val));
-                return res;
+                if (stack.top() == '{') {
+                    stack.pop();
+                    // Insert entry into json object 
+                    if (isdigit(value_buff[0])) {
+                        res.emplace(attribute_buff, std::move(parsing_trait<int>::intoJson(value_buff)));
+                    } else if (isalpha(value_buff[0])) {
+                        res.emplace(attribute_buff, std::move(parsing_trait<std::string>::intoJson(value_buff)));
+                    }
+                    return res;
+                } else {
+                    throw std::runtime_error("Syntax error: the '{' is not enclosed.");
+                }
             }
             else if (*it_begin == '"') {
-                if (!read_value) {
-                    if (quotation_count == 0) {
-                        quotation_count++;
-                    } else {
-                        quotation_count--;
-                        attribute_buffer = str;
-                        str.clear();
-                    }
+                if (stack.top() == '"') {
+                    stack.pop();
                 } else {
-                    str += *it_begin;
+                    stack.push('"');
                 }
             }
             else if (*it_begin == ':') {
-                read_value = true;
+                attribute_buff = token;
+                token.clear();
             }
             else if (*it_begin == ',') {
-                read_value = false;
-                value_buffer = str;
-                auto [key, val] = parseIntoPair(attribute_buffer, value_buffer);
-                res.emplace(std::move(key), std::move(val));
-                str.clear();
+                value_buff = token;
+                token.clear();
+                // Insert entry into json object 
+                if (isdigit(value_buff[0])) {
+                    res.emplace(attribute_buff, std::move(parsing_trait<int>::intoJson(value_buff)));
+                } else if (isalpha(value_buff[0])) {
+                    res.emplace(attribute_buff, std::move(parsing_trait<std::string>::intoJson(value_buff)));
+                }
             }
             else {
-                str += *it_begin;
+                token += *it_begin;
             }
             it_begin++;
         }
         return res;
     }
 
-    std::pair<std::string, JsonValue> parseIntoPair(std::string& attribute_str, std::string& value_str) {
-        std::string attribute{attribute_str};
-        int val = std::atoi(value_str.c_str());
-        JsonValue value(val);
-        return {attribute, val};
-    }
 }
