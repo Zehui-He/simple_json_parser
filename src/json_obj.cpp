@@ -43,4 +43,8 @@ namespace json_parser {
             std::cout << std::endl;
         }
     }
+
+    bool JsonObj::empty() const {
+        return data_.empty();
+    }
 }

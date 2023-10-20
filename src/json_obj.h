@@ -32,5 +32,17 @@ namespace json_parser {
         Iterator end();
         Const_iterator begin() const;
         Const_iterator end() const;
+        // Check if the JsonObj is empty 
+        bool empty() const;
+        // Access the value with the key 
+        template <typename K>
+        JsonValue& operator[](K&& key) {
+            return data_.at(std::forward<K>(key));
+        }
+        
+        template <typename K>
+        const JsonValue& operator[](K&& key) const {
+            return data_.at(std::forward<K>(key));
+        }
     };
 }
