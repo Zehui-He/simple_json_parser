@@ -13,10 +13,10 @@ namespace json_parser {
         using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;
         JsonObj() = default;
         ~JsonObj() = default;
-        // Allow copy and move 
-        JsonObj(JsonObj&) = default;
+        // Json is not copyable but movable 
+        JsonObj(JsonObj&) = delete;
         JsonObj(JsonObj&&) = default;
-        JsonObj& operator=(JsonObj&) = default;
+        JsonObj& operator=(JsonObj&) = delete;
         JsonObj& operator=(JsonObj&&) = default;
 
         // This would allow the key constructed with whatever type that can be converted to std::string
