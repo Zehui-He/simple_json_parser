@@ -51,10 +51,8 @@ namespace json_parser {
             case DOUBLE:
                 break;
             case JSON:
-                std::get<std::unique_ptr<JsonObj>>(data).reset();
                 break;
             case STRING:
-                std::get<std::unique_ptr<JsonObj>>(data).reset();
                 break;
             case NONE:
                 break;
