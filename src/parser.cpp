@@ -2,9 +2,10 @@
 #include "parser.h"
 
 namespace json_parser {
+    // A trait to parse string value into JsonValue 
     template <typename T>
     struct parsing_trait {
-        static JsonValue intoJson(std::string& value_str) {
+        static JsonValue intoJson(std::string const& value_str) {
             return 0;
         };
     };
@@ -12,7 +13,7 @@ namespace json_parser {
     template <>
     struct parsing_trait<int>
     {
-        static JsonValue intoJson(std::string& value_str) {
+        static JsonValue intoJson(std::string const& value_str) {
             int val = std::atoi(value_str.c_str());
             return val;
         };
@@ -21,7 +22,7 @@ namespace json_parser {
     template <>
     struct parsing_trait<std::string>
     {
-        static JsonValue intoJson(std::string& value_str) {
+        static JsonValue intoJson(std::string const& value_str) {
             std::string val = value_str;
             return val;
         };
@@ -84,7 +85,17 @@ namespace json_parser {
         return res;
     }
 
-    // Note: this is a super naive but recursive approach. 
+    // Insert an entry to the json object with given value string and attribute string 
+    // The value type recognition takes place here 
+    void insertEntry(std::string const& attribute, std::string const& value, json_parser::JsonObj& j_obj) {
+        if (isdigit(value[0])) {
+            j_obj.emplace(attribute, std::move(parsing_trait<int>::intoJson(value)));
+        } else if (isalpha(value[0])) {
+            j_obj.emplace(attribute, std::move(parsing_trait<std::string>::intoJson(value)));
+        }
+    }
+
+    // This updated version has improved performance by avoiding unnecessary copying 
     JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end, std::stack<char>& stack) {
         stack.push('{');
         it_begin++;
@@ -102,12 +113,7 @@ namespace json_parser {
             else if (*it_begin == '}') {
                 if (stack.top() == '{') {
                     stack.pop();
-                    // Insert entry into json object 
-                    if (isdigit(value_buff[0])) {
-                        res.emplace(attribute_buff, std::move(parsing_trait<int>::intoJson(value_buff)));
-                    } else if (isalpha(value_buff[0])) {
-                        res.emplace(attribute_buff, std::move(parsing_trait<std::string>::intoJson(value_buff)));
-                    }
+                    insertEntry(attribute_buff, value_buff, res);
                     return res;
                 } else {
                     throw std::runtime_error("Syntax error: the '{' is not enclosed.");
@@ -127,12 +133,7 @@ namespace json_parser {
             else if (*it_begin == ',') {
                 value_buff = token;
                 token.clear();
-                // Insert entry into json object 
-                if (isdigit(value_buff[0])) {
-                    res.emplace(attribute_buff, std::move(parsing_trait<int>::intoJson(value_buff)));
-                } else if (isalpha(value_buff[0])) {
-                    res.emplace(attribute_buff, std::move(parsing_trait<std::string>::intoJson(value_buff)));
-                }
+                insertEntry(attribute_buff, value_buff, res);
             }
             else {
                 token += *it_begin;
