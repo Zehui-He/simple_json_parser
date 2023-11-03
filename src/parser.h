@@ -13,9 +13,8 @@ namespace json_parser {
     std::string extractContnet(std::string json_name);
 
     // Convert the string into a json object. 
-    JsonObj parseIntoJson(std::string& content);
+    JsonObj parseIntoJson(std::string const& content);
 
     // Generate json object with string iterator. 
-    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end, std::stack<char>& stack);
-
+    JsonObj iterIntoJson(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
 }

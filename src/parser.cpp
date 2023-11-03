@@ -77,9 +77,9 @@ namespace json_parser {
         return content;
     }
 
-    JsonObj parseIntoJson(std::string& content) {
-        auto it_begin = content.begin();
-        auto it_end = content.end();
+    JsonObj parseIntoJson(std::string const& content) {
+        auto it_begin = content.cbegin();
+        auto it_end = content.cend();
         auto stack = std::stack<char>{};
         JsonObj res = iterIntoJson(it_begin,it_end,stack);
         return res;
@@ -96,7 +96,7 @@ namespace json_parser {
     }
 
     // This updated version has improved performance by avoiding unnecessary copying 
-    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end, std::stack<char>& stack) {
+    JsonObj iterIntoJson(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         stack.push('{');
         it_begin++;
         std::string token{};
