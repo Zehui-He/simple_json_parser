@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <string>
+#include <stack>
 #include "json_value.h"
 #include "json_obj.h"
 
@@ -15,8 +16,6 @@ namespace json_parser {
     JsonObj parseIntoJson(std::string& content);
 
     // Generate json object with string iterator. 
-    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end);
+    JsonObj iterIntoJson(std::string::iterator& it_begin, std::string::iterator& it_end, std::stack<char>& stack);
 
-    // Parse the string into json value. 
-    std::pair<std::string, JsonValue> parseIntoPair(std::string& attribute, std::string& value);
 }
