@@ -10,7 +10,7 @@ namespace json_parser {
     class JsonObj {
     private:
         std::unordered_map<std::string, JsonValue> data_;
-        void show_with_depth(int depth) const;
+        void showWithDepth(int depth) const;
     public:
         using Iterator = std::unordered_map<std::string, JsonValue>::iterator;
         using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;

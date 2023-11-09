@@ -12,7 +12,7 @@ namespace json_parser {
             this->size = 0;
         }
 
-        std::string to_string() const {
+        std::string toString() const {
             std::string res{start, start + size};
             return std::move(res);
         }
@@ -151,7 +151,7 @@ namespace json_parser {
             if (*it_begin == '"' && stack.top() == '"') { // End of string 
                 stack.pop();
                 safeIteratorIncrement(it_begin, it_end); // Pass the tailing '"' 
-                return std::move(token.to_string());
+                return std::move(token.toString());
             } else if (*it_begin == '"') { // Start of string 
                 stack.push('"');
                 token.set(it_begin+1);
@@ -178,7 +178,7 @@ namespace json_parser {
             } else if (*it_begin == '{') { 
                 return std::move(objectHandler(it_begin, it_end, stack));
             } else if (*it_begin == ',' || *it_begin == ']') { 
-                return std::move(stringToValue(token.to_string()));
+                return std::move(stringToValue(token.toString()));
             } else { 
                 token++;
             }
@@ -227,7 +227,7 @@ namespace json_parser {
                 if (*it_begin == ',') { // Pass the tailing ',' 
                     safeIteratorIncrement(it_begin, it_end);
                 }
-                return std::move(stringToValue(token.to_string()));
+                return std::move(stringToValue(token.toString()));
             } else { 
                 token++;
             }

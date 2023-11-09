@@ -29,7 +29,7 @@ namespace json_parser {
             switch (vec->at(i).type) {
             case JsonValue::JSON:
                 std::cout << "{\n";
-                vec->at(i).read<std::unique_ptr<JsonObj>>()->show_with_depth(depth + 1);
+                vec->at(i).read<std::unique_ptr<JsonObj>>()->showWithDepth(depth + 1);
                 for (int i = 0; i < depth; i++) {
                     std::cout << "\t";
                 }
@@ -57,7 +57,7 @@ namespace json_parser {
         }
     }
 
-    void JsonObj::show_with_depth(int depth) const {
+    void JsonObj::showWithDepth(int depth) const {
         for (auto it = data_.begin(); it != data_.end(); ++it) {
             for (int i = 0; i < depth; i++) {
                 std::cout << "\t";
@@ -66,7 +66,7 @@ namespace json_parser {
             {
             case JsonValue::JSON:
                 std::cout << it->first << ": \n";
-                it->second.read<std::unique_ptr<JsonObj>>()->show_with_depth(depth + 1);
+                it->second.read<std::unique_ptr<JsonObj>>()->showWithDepth(depth + 1);
                 break;
             case JsonValue::STRING:
                 std::cout << it->first << ": \"";
@@ -93,7 +93,7 @@ namespace json_parser {
     }
 
     void JsonObj::show() const {
-        show_with_depth(0);
+        showWithDepth(0);
     }
 
     bool JsonObj::empty() const {
