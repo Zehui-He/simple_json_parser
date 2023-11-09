@@ -21,13 +21,13 @@ namespace json_parser {
     }
 
     void printJsonVec(JsonValue const& item, int depth) {
-        if (item.type != JsonValue::VEC) {
-            throw std::runtime_error("Should not call this function with JsonValue.type != VEC");
+        if (item.type != JsonValue::ARRAY) {
+            throw std::runtime_error("Should not call this function with JsonValue.type != ARRAY");
         }
         auto const& vec = std::get<std::unique_ptr<std::vector<JsonValue>>>(item.data);
         for (int i = 0; i < vec->size(); i++) {
             switch (vec->at(i).type) {
-            case JsonValue::JSON:
+            case JsonValue::OBJECT:
                 std::cout << "{\n";
                 vec->at(i).read<std::unique_ptr<JsonObj>>()->showWithDepth(depth + 1);
                 for (int i = 0; i < depth; i++) {
@@ -44,7 +44,7 @@ namespace json_parser {
             case JsonValue::INT:
                 std::cout << vec->at(i).read<int>();
                 break;
-            case JsonValue::VEC:
+            case JsonValue::ARRAY:
                 std::cout << "[";
                 printJsonVec(vec->at(i), depth);
                 std::cout << "]";
@@ -64,7 +64,7 @@ namespace json_parser {
             }
             switch (it->second.type)
             {
-            case JsonValue::JSON:
+            case JsonValue::OBJECT:
                 std::cout << it->first << ": \n";
                 it->second.read<std::unique_ptr<JsonObj>>()->showWithDepth(depth + 1);
                 break;
@@ -81,7 +81,7 @@ namespace json_parser {
                 std::cout << it->first << ": ";
                 std::cout << it->second.read<int>();
                 break;
-            case JsonValue::VEC:
+            case JsonValue::ARRAY:
                 std::cout << it->first << ": ";
                 std::cout << "[";
                 printJsonVec(it->second, depth);

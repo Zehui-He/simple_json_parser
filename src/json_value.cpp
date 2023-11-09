@@ -14,7 +14,7 @@ namespace json_parser {
 
     JsonValue::JsonValue(JsonObj&& data) {
         this->data = std::make_unique<JsonObj>(std::move(data));
-        type = JSON;
+        type = OBJECT;
     }
 
     JsonValue::JsonValue(std::string&& data) {
@@ -24,7 +24,7 @@ namespace json_parser {
 
     JsonValue::JsonValue(std::vector<JsonValue>&& data) {
         this->data = std::make_unique<std::vector<JsonValue>>(std::move(data));
-        type = VEC;
+        type = ARRAY;
     }
 
     // Move constructor 
@@ -37,13 +37,13 @@ namespace json_parser {
             case DOUBLE:
                 other.data = -1;
                 break;
-            case JSON:
+            case OBJECT:
                 other.data = std::unique_ptr<JsonObj>(); // Set the pointer as nullptr 
                 break;
             case STRING:
                 other.data = std::unique_ptr<std::string>();
                 break;
-            case VEC:
+            case ARRAY:
                 other.data = std::unique_ptr<std::vector<JsonValue>>();
                 break;
             case NONE:

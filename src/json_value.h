@@ -23,9 +23,9 @@ namespace json_parser {
         enum DataType {
             INT,
             DOUBLE,
-            JSON,
+            OBJECT,
             STRING,
-            VEC,
+            ARRAY,
             NONE
         } type;
 
