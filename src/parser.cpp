@@ -116,22 +116,30 @@ namespace json_parser {
         return content;
     }
 
+    // Do not advance it_begin if it has reached the end 
+    void safeIteratorIncrement(std::string::const_iterator& it_begin, std::string::const_iterator& it_end) {
+        if (it_begin == it_end) {
+            return;
+        }
+        it_begin++;
+    }
+
     JsonObj parseIntoJson(std::string const& content) {
         auto it_begin = content.cbegin();
         auto it_end = content.cend();
         auto stack = std::stack<char>{};
-        JsonObj res = iterIntoJson(it_begin,it_end,stack);
+        JsonObj res = objectHandler(it_begin,it_end,stack);
         return res;
     }
 
-    // Insert an entry to the json object with given value string and attribute string 
+    // Convert the string into a JsonValue 
     // The value type recognition takes place here 
-    void insertEntry(std::string const& attribute, std::string const& value, json_parser::JsonObj& j_obj) {
+    JsonValue stringToValue(std::string const& value) {
         if (isdigit(value[0])) {
-            j_obj.emplace(attribute, std::move(parsing_trait<int>::intoJson(value)));
+            return std::move(parsing_trait<int>::intoJson(value));
         // } else if (isalpha(value[0])) {
         } else {
-            j_obj.emplace(attribute, std::move(parsing_trait<std::string>::intoJson(value)));
+            return std::move(parsing_trait<std::string>::intoJson(value));
         }
     }
 
@@ -145,57 +153,53 @@ namespace json_parser {
             } else if (*it_begin == '"') { // Start of string 
                 stack.push('"');
                 token.set(it_begin+1);
-            } else {    // Increase the size of string 
+            } else { 
                 token++;
             }
-            it_begin++;
+            safeIteratorIncrement(it_begin, it_end);
         }
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
-    std::string valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    JsonValue valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
-            if (*it_begin == ':') { // End of string 
+            if (*it_begin == ':') { // Start of value 
                 token.set(it_begin+1);
+            } else if (*it_begin == '{') { // The value is an object 
+                return JsonValue(std::move(objectHandler(it_begin, it_end, stack)));
             } else if (*it_begin == ',' || *it_begin == '}') { // End of value 
-                return std::move(token.to_string());
+                return std::move(stringToValue(token.to_string()));
             } else { 
                 token++;
             }
-            it_begin++;
+            safeIteratorIncrement(it_begin, it_end);
         }
         throw std::runtime_error("Syntax error: value cannot be parsed");
     }
 
-    // This updated version has improved performance by avoiding unnecessary copying 
-    JsonObj iterIntoJson(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
-        stack.push('{');
-        it_begin++;
+    // 
+    JsonObj objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         json_parser::Token token{};
         std::string attribute_buff{};
-        std::string value_buff{};
         JsonObj res{};
 
         while (it_begin != it_end) {
             if (*it_begin == '{') { // Start of object 
-                // WARNING: the program never go to this line because object is handled in value 
-                if (stack.top() == '{') {
-                    JsonObj j_obj = iterIntoJson(it_begin, it_end, stack);
-                    JsonValue j_val{std::move(j_obj)};
-                    res.emplace(attribute_buff, std::move(j_val));
-                }
+                stack.push('{');
+                token.set(it_begin+1);
             }
             else if (*it_begin == '"') { // Start of string 
                 attribute_buff = stringHandler(it_begin, it_end, stack);
             }
             else if (*it_begin == ':') { // Start of vlaue 
-                value_buff = valueHandler(it_begin, it_end, stack);
-                insertEntry(attribute_buff, value_buff, res);
+                res.emplace(attribute_buff, std::move(valueHandler(it_begin, it_end, stack)));
                 if (*it_begin == '}') { // End of object 
                     if (stack.top() != '{') {
                         throw std::runtime_error("Syntax error: { is not enclosed.");
                     } else {
+                        safeIteratorIncrement(it_begin,it_end);
+                        stack.pop();
                         return res;
                     }
                 }
@@ -203,7 +207,7 @@ namespace json_parser {
             else {
                 token++;
             }
-            it_begin++;
+            safeIteratorIncrement(it_begin, it_end); // The tailing '"', '{' and ',' are ignored. 
         }
         return res;
     }
