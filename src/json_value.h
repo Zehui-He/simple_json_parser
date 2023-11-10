@@ -4,13 +4,23 @@
 #include <unordered_map>
 #include <memory>
 #include <variant>
+#include <vector>
 
 namespace json_parser {
     class JsonObj;
 
     class JsonValue {
     public:
-        using Data = std::variant<int, double, std::unique_ptr<JsonObj>, std::unique_ptr<std::string>>;
+        using Data = std::variant<
+            int,
+            double, 
+            std::unique_ptr<JsonObj>, 
+            std::unique_ptr<std::string>, 
+            std::unique_ptr<std::vector<int>>,
+            std::unique_ptr<std::vector<double>>,
+            std::unique_ptr<std::vector<std::unique_ptr<JsonObj>>>,
+            std::unique_ptr<std::vector<std::unique_ptr<std::string>>>
+        >;
 
         Data data;
         enum DataType {
@@ -18,6 +28,10 @@ namespace json_parser {
             DOUBLE,
             JSON,
             STRING,
+            INT_VEC,
+            DOUBLE_VEC,
+            JSON_VEC,
+            STRING_VEC,
             NONE
         } type;
 
@@ -29,6 +43,10 @@ namespace json_parser {
         JsonValue(double data);
         JsonValue(JsonObj&& data);
         JsonValue(std::string&& data);
+        JsonValue(std::vector<int>&& data);
+        JsonValue(std::vector<double>&& data);
+        JsonValue(std::vector<std::unique_ptr<std::string>>&& data);
+        JsonValue(std::vector<std::unique_ptr<JsonObj>>&& data);
         // Move constructor 
         JsonValue(JsonValue&& other) noexcept;
         // Destructor 

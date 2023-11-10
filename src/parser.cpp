@@ -144,6 +144,7 @@ namespace json_parser {
     }
 
     // Currently no support for special characters such as '\n'
+    // The string handler should handle the tailing '"' 
     std::string stringHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
@@ -161,11 +162,34 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
+    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+        Token token{};
+        while (it_begin != it_end) {
+            if (*it_begin == '[') {
+                stack.push('[');
+                token.set(it_begin+1);
+            } else if (*it_begin == ']') {
+                if (stack.top() == '[') {
+                    stack.pop();
+                    return JsonValue("This is a vector");
+                }
+            } else {
+                token++;
+            }
+            safeIteratorIncrement(it_begin, it_end);
+        }
+        throw std::runtime_error("Syntax error: ] is not enclosed");
+    }
+
     JsonValue valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
             if (*it_begin == ':') { // Start of value 
                 token.set(it_begin+1);
+            } else if (*it_begin == '"') {
+                return JsonValue(std::move(stringHandler(it_begin, it_end, stack)));
+            } else if (*it_begin == '[') {
+                return vectorHandler(it_begin, it_end, stack);
             } else if (*it_begin == '{') { // The value is an object 
                 return JsonValue(std::move(objectHandler(it_begin, it_end, stack)));
             } else if (*it_begin == ',' || *it_begin == '}') { // End of value 
