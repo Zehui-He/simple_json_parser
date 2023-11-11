@@ -163,21 +163,46 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
-    // The string handler should pass the tailing ']' 
-    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
+
+    JsonValue vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
+        token.set(it_begin);
         while (it_begin != it_end) {
-            if (*it_begin == '[') {
-                stack.push('[');
-                token.set(it_begin+1);
-            } else if (*it_begin == ']') {
-                if (stack.top() == '[') {
+            if (*it_begin == '"') {
+                return std::move(stringHandler(it_begin, it_end, stack));
+            } else if (*it_begin == '[') {
+                return std::move(vectorHandler(it_begin, it_end, stack));
+            } else if (*it_begin == '{') { 
+                return std::move(objectHandler(it_begin, it_end, stack));
+            } else if (*it_begin == ',' || *it_begin == ']') { 
+                if (*it_begin == ',') { // Pass the tailing ',' 
                     safeIteratorIncrement(it_begin, it_end);
-                    stack.pop();
-                    return JsonValue("This is a vector");
                 }
-            } else {
+                return std::move(stringToValue(token.to_string()));
+            } else { 
                 token++;
+            }
+            safeIteratorIncrement(it_begin, it_end);
+        }
+        throw std::runtime_error("Syntax error: value cannot be parsed");
+    }
+
+    // The vector handler should pass the tailing ']' 
+    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+        std::vector<JsonValue> value_vec{};
+        while (it_begin != it_end) {
+            if (*it_begin == '[') { // Start of a vector 
+                stack.push('[');
+            } else {
+                value_vec.emplace_back(vectorValueHandler(it_begin, it_end, stack));
+                if (*it_begin == ']') { // End of a vector 
+                    if (stack.top() == '[') {
+                        safeIteratorIncrement(it_begin, it_end);
+                        stack.pop();
+                        return std::move(value_vec);
+                    }
+                }
             }
             safeIteratorIncrement(it_begin, it_end);
         }
@@ -196,7 +221,7 @@ namespace json_parser {
                 return std::move(vectorHandler(it_begin, it_end, stack));
             } else if (*it_begin == '{') { // The value is an object 
                 return std::move(objectHandler(it_begin, it_end, stack));
-            } else if (*it_begin == ',' || *it_begin == '}') { // End of value 
+            } else if (*it_begin == ',' || *it_begin == '}' || *it_begin == ']') { // End of value 
                 if (*it_begin == ',') { // Pass the tailing ',' 
                     safeIteratorIncrement(it_begin, it_end);
                 }

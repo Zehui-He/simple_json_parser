@@ -45,6 +45,7 @@ namespace json_parser {
                 break;
             case VEC:
                 other.data = std::unique_ptr<std::vector<JsonValue>>();
+                break;
             case NONE:
                 throw std::runtime_error("Cannot move JsonValue::JsonValue of type NONE"); // Throw error when try to consturct an invalid object 
         }
