@@ -143,13 +143,14 @@ namespace json_parser {
         }
     }
 
-    // Currently no support for special characters such as '\n'
-    // The string handler should handle the tailing '"' 
+    // Currently no support for special characters such as '\n' and '[' 
+    // The string handler should pass the tailing '"' 
     std::string stringHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
             if (*it_begin == '"' && stack.top() == '"') { // End of string 
                 stack.pop();
+                safeIteratorIncrement(it_begin, it_end); // Pass the tailing '"' 
                 return std::move(token.to_string());
             } else if (*it_begin == '"') { // Start of string 
                 stack.push('"');
@@ -162,6 +163,7 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
+    // The string handler should pass the tailing ']' 
     JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
@@ -170,6 +172,7 @@ namespace json_parser {
                 token.set(it_begin+1);
             } else if (*it_begin == ']') {
                 if (stack.top() == '[') {
+                    safeIteratorIncrement(it_begin, it_end);
                     stack.pop();
                     return JsonValue("This is a vector");
                 }
@@ -181,18 +184,22 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: ] is not enclosed");
     }
 
+    // The value handler should handle the tailing ','
     JsonValue valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
             if (*it_begin == ':') { // Start of value 
                 token.set(it_begin+1);
             } else if (*it_begin == '"') {
-                return JsonValue(std::move(stringHandler(it_begin, it_end, stack)));
+                return std::move(stringHandler(it_begin, it_end, stack));
             } else if (*it_begin == '[') {
-                return vectorHandler(it_begin, it_end, stack);
+                return std::move(vectorHandler(it_begin, it_end, stack));
             } else if (*it_begin == '{') { // The value is an object 
-                return JsonValue(std::move(objectHandler(it_begin, it_end, stack)));
+                return std::move(objectHandler(it_begin, it_end, stack));
             } else if (*it_begin == ',' || *it_begin == '}') { // End of value 
+                if (*it_begin == ',') { // Pass the tailing ',' 
+                    safeIteratorIncrement(it_begin, it_end);
+                }
                 return std::move(stringToValue(token.to_string()));
             } else { 
                 token++;
@@ -202,7 +209,7 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: value cannot be parsed");
     }
 
-    // 
+    // The object handler should handle the tailing '}' 
     JsonObj objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         json_parser::Token token{};
         std::string attribute_buff{};
@@ -215,23 +222,25 @@ namespace json_parser {
             }
             else if (*it_begin == '"') { // Start of string 
                 attribute_buff = stringHandler(it_begin, it_end, stack);
+                continue;
             }
             else if (*it_begin == ':') { // Start of vlaue 
                 res.emplace(attribute_buff, std::move(valueHandler(it_begin, it_end, stack)));
-                if (*it_begin == '}') { // End of object 
-                    if (stack.top() != '{') {
-                        throw std::runtime_error("Syntax error: { is not enclosed.");
-                    } else {
-                        safeIteratorIncrement(it_begin,it_end);
-                        stack.pop();
-                        return res;
-                    }
+                continue;
+            } 
+            else if (*it_begin == '}') { // End of object 
+                if (stack.top() != '{') {
+                    throw std::runtime_error("Syntax error: { is not enclosed.");
+                } else {
+                    safeIteratorIncrement(it_begin,it_end); // Pass the tailing '}' 
+                    stack.pop();
+                    return res;
                 }
             }
             else {
                 token++;
             }
-            safeIteratorIncrement(it_begin, it_end); // The tailing '"', '{' and ',' are ignored. 
+            safeIteratorIncrement(it_begin, it_end); 
         }
         return res;
     }
