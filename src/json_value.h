@@ -16,10 +16,7 @@ namespace json_parser {
             double, 
             std::unique_ptr<JsonObj>, 
             std::unique_ptr<std::string>, 
-            std::unique_ptr<std::vector<int>>,
-            std::unique_ptr<std::vector<double>>,
-            std::unique_ptr<std::vector<std::unique_ptr<JsonObj>>>,
-            std::unique_ptr<std::vector<std::unique_ptr<std::string>>>
+            std::unique_ptr<std::vector<JsonValue>>
         >;
 
         Data data;
@@ -28,10 +25,7 @@ namespace json_parser {
             DOUBLE,
             JSON,
             STRING,
-            INT_VEC,
-            DOUBLE_VEC,
-            JSON_VEC,
-            STRING_VEC,
+            VEC,
             NONE
         } type;
 
@@ -43,10 +37,7 @@ namespace json_parser {
         JsonValue(double data);
         JsonValue(JsonObj&& data);
         JsonValue(std::string&& data);
-        JsonValue(std::vector<int>&& data);
-        JsonValue(std::vector<double>&& data);
-        JsonValue(std::vector<std::unique_ptr<std::string>>&& data);
-        JsonValue(std::vector<std::unique_ptr<JsonObj>>&& data);
+        JsonValue(std::vector<JsonValue>&& data);
         // Move constructor 
         JsonValue(JsonValue&& other) noexcept;
         // Destructor 
