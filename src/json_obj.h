@@ -5,6 +5,8 @@
 #include "json_value.h"
 
 namespace json_parser {
+    void printJsonVec(JsonValue const& item, int depth);
+
     class JsonObj {
     private:
         std::unordered_map<std::string, JsonValue> data_;
@@ -45,5 +47,6 @@ namespace json_parser {
         const JsonValue& operator[](K&& key) const {
             return data_.at(std::forward<K>(key));
         }
+        friend void printJsonVec(JsonValue const& item, int depth);
     };
 }
