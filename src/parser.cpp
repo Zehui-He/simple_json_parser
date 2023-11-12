@@ -165,6 +165,8 @@ namespace json_parser {
 
     JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
 
+    // Handle values inside vector 
+    // The ',' is not handle in this case to sign the vector is no finished 
     JsonValue vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         token.set(it_begin);
@@ -176,9 +178,6 @@ namespace json_parser {
             } else if (*it_begin == '{') { 
                 return std::move(objectHandler(it_begin, it_end, stack));
             } else if (*it_begin == ',' || *it_begin == ']') { 
-                if (*it_begin == ',') { // Pass the tailing ',' 
-                    safeIteratorIncrement(it_begin, it_end);
-                }
                 return std::move(stringToValue(token.to_string()));
             } else { 
                 token++;
@@ -194,17 +193,20 @@ namespace json_parser {
         while (it_begin != it_end) {
             if (*it_begin == '[') { // Start of a vector 
                 stack.push('[');
-            } else {
+                safeIteratorIncrement(it_begin, it_end);
                 value_vec.emplace_back(vectorValueHandler(it_begin, it_end, stack));
-                if (*it_begin == ']') { // End of a vector 
-                    if (stack.top() == '[') {
-                        safeIteratorIncrement(it_begin, it_end);
-                        stack.pop();
-                        return std::move(value_vec);
-                    }
+            } 
+            else if (*it_begin == ',') {
+                safeIteratorIncrement(it_begin, it_end);
+                value_vec.emplace_back(vectorValueHandler(it_begin, it_end, stack));
+            } 
+            else if (*it_begin == ']') { // End of a vector 
+                if (stack.top() == '[') {
+                    safeIteratorIncrement(it_begin, it_end);
+                    stack.pop();
+                    return std::move(value_vec);
                 }
             }
-            safeIteratorIncrement(it_begin, it_end);
         }
         throw std::runtime_error("Syntax error: ] is not enclosed");
     }

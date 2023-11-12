@@ -1,5 +1,6 @@
 #include <iostream>
 #include <variant>
+#include <vector>
 #include "json_obj.h"
 
 namespace json_parser {
@@ -42,6 +43,13 @@ namespace json_parser {
                 std::cout << it->first << ": ";
                 std::cout << it->second.read<int>();
                 break;
+            case JsonValue::VEC:
+                std::cout << it->first << ": ";
+                std::cout << "[ ";
+                for (auto vec_it = it->second.read<std::unique_ptr<std::vector<JsonValue>>>()->begin(); vec_it != it->second.read<std::unique_ptr<std::vector<JsonValue>>>()->end();vec_it++) {
+                    std::cout << vec_it->type << " ";
+                }
+                std::cout << "]";
             }
             std::cout << std::endl;
         }
