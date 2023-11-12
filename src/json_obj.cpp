@@ -28,7 +28,12 @@ namespace json_parser {
         for (int i = 0; i < vec->size(); i++) {
             switch (vec->at(i).type) {
             case JsonValue::JSON:
-                vec->at(i).read<std::unique_ptr<JsonObj>>()->show_with_depth(depth);
+                std::cout << "{\n";
+                vec->at(i).read<std::unique_ptr<JsonObj>>()->show_with_depth(depth + 1);
+                for (int i = 0; i < depth; i++) {
+                    std::cout << "\t";
+                }
+                std::cout << "}";
                 break;
             case JsonValue::STRING:
                 std::cout << "\"" << *vec->at(i).read<std::unique_ptr<std::string>>() << "\"";
