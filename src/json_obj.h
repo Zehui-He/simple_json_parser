@@ -5,9 +5,12 @@
 #include "json_value.h"
 
 namespace json_parser {
+    void printJsonVec(JsonValue const& item, int depth);
+
     class JsonObj {
     private:
         std::unordered_map<std::string, JsonValue> data_;
+        void showWithDepth(int depth) const;
     public:
         using Iterator = std::unordered_map<std::string, JsonValue>::iterator;
         using Const_iterator = std::unordered_map<std::string, JsonValue>::const_iterator;
@@ -44,5 +47,6 @@ namespace json_parser {
         const JsonValue& operator[](K&& key) const {
             return data_.at(std::forward<K>(key));
         }
+        friend void printJsonVec(JsonValue const& item, int depth);
     };
 }

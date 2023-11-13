@@ -52,7 +52,7 @@ TEST_CASE("Json value can be initilized with various types") {
         json_parser::JsonObj j_obj{};
         json_parser::JsonValue j_val(std::move(j_obj));
         REQUIRE(j_val.read<std::unique_ptr<json_parser::JsonObj>>()->empty() == true);
-        REQUIRE(j_val.type == json_parser::JsonValue::JSON);
+        REQUIRE(j_val.type == json_parser::JsonValue::OBJECT);
     }
 }
 
