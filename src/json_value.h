@@ -42,14 +42,14 @@ namespace json_parser {
         // Destructor 
         ~JsonValue();
         // Give a const reference of the data 
-        template <typename T>
-        const T& read() const {
-            return std::get<T>(data);
+        template <typename ReturnType>
+        const ReturnType& read() const {
+            return std::get<ReturnType>(data);
         }
         // Give a reference of the data 
-        template <typename T>
-        T& get() {
-            return std::get<T>(data);
+        template <typename ReturnType>
+        ReturnType& get() {
+            return std::get<ReturnType>(data);
         }
         // Get the value type helded by the JsonValue 
         DataType get_type() const;
