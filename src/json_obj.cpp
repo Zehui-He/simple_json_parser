@@ -1,6 +1,7 @@
 #include <iostream>
 #include <variant>
 #include <vector>
+#include <exception>
 #include "json_obj.h"
 
 namespace json_parser {
@@ -49,6 +50,15 @@ namespace json_parser {
                 printJsonVec(vec->at(i), depth);
                 std::cout << "]";
                 break;
+            case JsonValue::BOOL:
+                if (vec->at(i).read<bool>()) {
+                    std::cout << "true";
+                } else {
+                    std::cout << "false";
+                }
+                break;
+            default:
+                throw std::runtime_error("Show function of this type is not implemented.");
             }
             if (i == vec->size() - 1) {
                 continue;
@@ -87,6 +97,16 @@ namespace json_parser {
                 printJsonVec(it->second, depth);
                 std::cout << "]";
                 break;
+            case JsonValue::BOOL:
+                std::cout << it->first << ": ";
+                if (it->second.read<bool>()) {
+                    std::cout << "true";
+                } else {
+                    std::cout << "false";
+                }
+                break;
+            default:
+                throw std::runtime_error("Show function of this type is not implemented.");
             }
             std::cout << std::endl;
         }
