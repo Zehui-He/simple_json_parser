@@ -41,18 +41,6 @@ namespace json_parser {
             this->size++;
         }
     };
-    // A trait to parse string value into JsonValue 
-    template <typename T>
-    struct parsing_numeric {};
-
-    template <>
-    struct parsing_numeric<int>
-    {
-        static JsonValue intoJson(std::string const& value_str) {
-            int val = std::atoi(value_str.c_str());
-            return val;
-        };
-    };
 
     std::string extractContnet(std::string json_name) {
         std::string content;
@@ -119,10 +107,20 @@ namespace json_parser {
         return res;
     }
 
-    // Convert the value into int or bool 
+    // Convert the value into int, double or bool 
     JsonValue stringToValue(std::string const& value) {
         if (isdigit(value[0]) || value[0] == '-') {
-            return std::move(parsing_numeric<int>::intoJson(value));
+            auto it = value.cbegin();
+            while (it != value.cend()) {
+                if (*it == '.') {
+                    break;
+                }
+                it++;
+            }
+            if (it == value.cend()) {
+                return std::atoi(value.c_str());
+            }
+            return std::atof(value.c_str());
         } else if (value == "true") {
             return true;
         } else if (value == "false") {
