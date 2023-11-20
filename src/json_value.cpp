@@ -3,55 +3,36 @@
 #include "json_obj.h"
 
 namespace json_parser {
-    JsonValue::JsonValue(int data) : type(INT) {
+    JsonValue::JsonValue(int data) {
         this->data = data;
     }
 
     JsonValue::JsonValue(double data) {
         this->data = data;
-        type = DOUBLE;
     }
 
     JsonValue::JsonValue(JsonObj&& data) {
         this->data = std::make_unique<JsonObj>(std::move(data));
-        type = OBJECT;
     }
 
     JsonValue::JsonValue(std::string&& data) {
         this->data = std::make_unique<std::string>(std::move(data));
-        type = STRING;
     }
 
     JsonValue::JsonValue(std::vector<JsonValue>&& data) {
         this->data = std::make_unique<std::vector<JsonValue>>(std::move(data));
-        type = ARRAY;
     }
 
     // Move constructor 
-    JsonValue::JsonValue(JsonValue&& other) noexcept : type(other.type) {
+    JsonValue::JsonValue(JsonValue&& other) noexcept {
         data = std::move(other.data);
-        switch (type) {
-            case INT:
-                other.data = -1;
-                break;
-            case DOUBLE:
-                other.data = -1;
-                break;
-            case OBJECT:
-                other.data = std::unique_ptr<JsonObj>(); // Set the pointer as nullptr 
-                break;
-            case STRING:
-                other.data = std::unique_ptr<std::string>();
-                break;
-            case ARRAY:
-                other.data = std::unique_ptr<std::vector<JsonValue>>();
-                break;
-            case NONE:
-                throw std::runtime_error("Cannot move JsonValue::JsonValue of type NONE"); // Throw error when try to consturct an invalid object 
-        }
-        other.type = NONE;
     }
 
     // Destructor 
     JsonValue::~JsonValue() = default;
+
+    JsonValue::DataType JsonValue::get_type() const {
+        size_t type = this->data.index();
+        return static_cast<JsonValue::DataType>(type);
+    }
 }

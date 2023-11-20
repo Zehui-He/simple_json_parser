@@ -19,15 +19,14 @@ namespace json_parser {
             std::unique_ptr<std::vector<JsonValue>>
         >;
 
-        Data data;
-        enum DataType {
+        enum DataType : size_t {
             INT,
             DOUBLE,
             OBJECT,
             STRING,
             ARRAY,
             NONE
-        } type;
+        };
 
         // JsonValue is not copyable 
         JsonValue(JsonValue&) = delete;
@@ -52,5 +51,11 @@ namespace json_parser {
         T& get() {
             return std::get<T>(data);
         }
+        // Get the value type helded by the JsonValue 
+        DataType get_type() const;
+
+    private:
+        Data data;
+        friend void printJsonVec(JsonValue const& item, int depth);
     };
 }
