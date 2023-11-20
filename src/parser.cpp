@@ -43,26 +43,13 @@ namespace json_parser {
     };
     // A trait to parse string value into JsonValue 
     template <typename T>
-    struct parsing_trait {
-        static JsonValue intoJson(std::string const& value_str) {
-            return 0;
-        };
-    };
+    struct parsing_numeric {};
 
     template <>
-    struct parsing_trait<int>
+    struct parsing_numeric<int>
     {
         static JsonValue intoJson(std::string const& value_str) {
             int val = std::atoi(value_str.c_str());
-            return val;
-        };
-    };
-
-    template <>
-    struct parsing_trait<std::string>
-    {
-        static JsonValue intoJson(std::string const& value_str) {
-            std::string val = value_str;
             return val;
         };
     };
@@ -132,15 +119,18 @@ namespace json_parser {
         return res;
     }
 
-    // Convert the string into a JsonValue 
-    // The value type recognition takes place here 
+    // Convert the value into int or bool 
     JsonValue stringToValue(std::string const& value) {
-        if (isdigit(value[0])) {
-            return std::move(parsing_trait<int>::intoJson(value));
-        // } else if (isalpha(value[0])) {
-        } else {
-            return std::move(parsing_trait<std::string>::intoJson(value));
+        if (isdigit(value[0]) || value[0] == '-') {
+            return std::move(parsing_numeric<int>::intoJson(value));
+        } else if (value == "true") {
+            return true;
+        } else if (value == "false") {
+            return false;
+        } else if (value.empty()) {
+            return "";
         }
+        throw std::runtime_error("Cannot parse the value.");
     }
 
     // Currently no support for special characters such as '\n' and '[' 

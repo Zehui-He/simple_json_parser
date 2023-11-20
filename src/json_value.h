@@ -14,6 +14,7 @@ namespace json_parser {
         using Data = std::variant<
             int,
             double, 
+            bool,
             std::unique_ptr<JsonObj>, 
             std::unique_ptr<std::string>, 
             std::unique_ptr<std::vector<JsonValue>>
@@ -22,6 +23,7 @@ namespace json_parser {
         enum DataType : size_t {
             INT,
             DOUBLE,
+            BOOL,
             OBJECT,
             STRING,
             ARRAY,
@@ -34,6 +36,7 @@ namespace json_parser {
 
         JsonValue(int data);
         JsonValue(double data);
+        JsonValue(bool data);
         JsonValue(JsonObj&& data);
         JsonValue(std::string&& data);
         JsonValue(std::vector<JsonValue>&& data);

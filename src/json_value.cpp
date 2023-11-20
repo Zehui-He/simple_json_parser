@@ -11,6 +11,10 @@ namespace json_parser {
         this->data = data;
     }
 
+    JsonValue::JsonValue(bool data) {
+        this->data = data;
+    }
+
     JsonValue::JsonValue(JsonObj&& data) {
         this->data = std::make_unique<JsonObj>(std::move(data));
     }
