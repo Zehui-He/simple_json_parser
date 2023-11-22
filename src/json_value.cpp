@@ -1,27 +1,20 @@
 #include <stdexcept>
 #include "json_value.h"
 #include "json_obj.h"
+#include "macros.h"
 
 namespace json_parser {
     JsonValue::JsonValue() {
         this->data = nullptr;
     }
 
-    JsonValue::JsonValue(int data) {
-        this->data = data;
-    }
+    CONSTRUCT_WITH_DATA(int);
 
-    JsonValue::JsonValue(double data) {
-        this->data = data;
-    }
+    CONSTRUCT_WITH_DATA(double);
 
-    JsonValue::JsonValue(unsigned int data) {
-        this->data = data;
-    }
+    CONSTRUCT_WITH_DATA(unsigned int);
 
-    JsonValue::JsonValue(bool data) {
-        this->data = data;
-    }
+    CONSTRUCT_WITH_DATA(bool);
 
     JsonValue::JsonValue(JsonObj&& data) {
         this->data = std::make_unique<JsonObj>(std::move(data));
