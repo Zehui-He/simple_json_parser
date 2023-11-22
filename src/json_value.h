@@ -19,7 +19,7 @@ namespace json_parser {
             std::unique_ptr<JsonObj>, 
             std::unique_ptr<std::string>, 
             std::unique_ptr<std::vector<JsonValue>>,
-            void* // To store a null_ptr 
+            std::nullptr_t // To store a null_ptr 
         >;
 
         enum DataType : size_t {
