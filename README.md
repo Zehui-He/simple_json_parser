@@ -7,7 +7,9 @@ A simple json parser which take the json file name via command line argument as 
 Limitation: 
 As this is a practice project, I decided to reduce the complexity by making some assumptions. 
 
-1. The JSON file is always valid. 
+1. The JSON file is always valid.
+2. ~~All the numeric values are positive.~~
+3. ~~The JSON file only contains string, integer and double.~~
 4. The result is stored in the form unordered_map<string, JsonValue>
 
 20/11/2023 
