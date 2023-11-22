@@ -130,8 +130,8 @@ namespace json_parser {
             return true;
         } else if (value == "false") {
             return false;
-        } else if (value.empty()) {
-            return ""; // Need to handle null value in the future 
+        } else if (value.empty() || value == "null") {
+            return JsonValue();
         }
         throw std::runtime_error("Cannot parse the value.");
     }
@@ -197,6 +197,10 @@ namespace json_parser {
                 if (stack.top() == '[') {
                     safeIteratorIncrement(it_begin, it_end);
                     stack.pop();
+                    // The vector is empty 
+                    if (value_vec[0].get_type() == JsonValue::null) {
+                        value_vec.pop_back();
+                    }
                     return std::move(value_vec);
                 }
             }

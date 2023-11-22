@@ -104,6 +104,10 @@ namespace json_parser {
                 printJsonVec(it->second, depth);
                 std::cout << "]";
                 break;
+            case JsonValue::null:
+                std::cout << it->first << ": ";
+                std::cout << "null";
+                break;
             case JsonValue::BOOL:
                 std::cout << it->first << ": ";
                 if (it->second.read<bool>()) {

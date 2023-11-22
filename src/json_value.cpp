@@ -3,6 +3,10 @@
 #include "json_obj.h"
 
 namespace json_parser {
+    JsonValue::JsonValue() {
+        this->data = nullptr;
+    }
+
     JsonValue::JsonValue(int data) {
         this->data = data;
     }
