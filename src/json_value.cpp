@@ -11,6 +11,10 @@ namespace json_parser {
         this->data = data;
     }
 
+    JsonValue::JsonValue(unsigned int data) {
+        this->data = data;
+    }
+
     JsonValue::JsonValue(bool data) {
         this->data = data;
     }

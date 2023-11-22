@@ -45,6 +45,9 @@ namespace json_parser {
             case JsonValue::INT:
                 std::cout << vec->at(i).read<int>();
                 break;
+            case JsonValue::UNSIGNED_INT:
+                std::cout << vec->at(i).read<unsigned int>();
+                break;
             case JsonValue::ARRAY:
                 std::cout << "[";
                 printJsonVec(vec->at(i), depth);
@@ -90,6 +93,10 @@ namespace json_parser {
             case JsonValue::INT:
                 std::cout << it->first << ": ";
                 std::cout << it->second.read<int>();
+                break;
+            case JsonValue::UNSIGNED_INT:
+                std::cout << it->first << ": ";
+                std::cout << it->second.read<unsigned int>();
                 break;
             case JsonValue::ARRAY:
                 std::cout << it->first << ": ";

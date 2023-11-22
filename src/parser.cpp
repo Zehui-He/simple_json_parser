@@ -118,7 +118,12 @@ namespace json_parser {
                 it++;
             }
             if (it == value.cend()) {
-                return std::atoi(value.c_str());
+                int res = std::atoi(value.c_str());
+                // Check if the value has exceeded the limit of int 
+                if (res < 0 && value[0] != '-') {
+                    return static_cast<unsigned int>(std::atol(value.c_str()));
+                }
+                return res;
             }
             return std::atof(value.c_str());
         } else if (value == "true") {
@@ -126,7 +131,7 @@ namespace json_parser {
         } else if (value == "false") {
             return false;
         } else if (value.empty()) {
-            return "";
+            return ""; // Need to handle null value in the future 
         }
         throw std::runtime_error("Cannot parse the value.");
     }
