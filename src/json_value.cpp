@@ -4,6 +4,7 @@
 #include "macros.h"
 
 namespace json_parser {
+    // The default constructor will return a JsonValue object with null value 
     JsonValue::JsonValue() {
         this->data = nullptr;
     }
