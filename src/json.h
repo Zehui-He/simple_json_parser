@@ -12,6 +12,10 @@ namespace json_parser {
     public:
         using JsonObject = std::unordered_map<std::string, Json>;
         using JsonArray = std::vector<Json>;
+        using JsonObjectPtr = std::unique_ptr<JsonObject>;
+        using JsonArrayPtr = std::unique_ptr<JsonArray>;
+        using JsonObjectIterator = JsonObject::iterator;
+        using JsonObjectIterator_const = JsonObject::const_iterator;
 
         using JsonValue = std::variant<
             int, 
@@ -36,6 +40,9 @@ namespace json_parser {
         Json(JsonArray&& data);
         Json(JsonObject&& data);
 
+        // Construct json with given value type 
+        Json(JsonValueType);
+
         // Json is not copyable 
         Json& operator=(Json&) = delete;
         Json(Json&) = delete;
@@ -49,8 +56,9 @@ namespace json_parser {
         friend std::ostream& operator<<(std::ostream& os, const Json& json);
 
         // [] operator can only be used on objects 
+        // If a key does not exist in the json object, a new key-value pair is inserted where the key equals to parameter 'key' and the value is null 
         template <typename K>
-        JsonValue& operator[](K&& key) {
+        Json& operator[](K&& key) {
             if (this->get_type() != JsonValueType::object_t) {
                 throw std::runtime_error("[] operator can only be used on objects.");
             }
@@ -59,11 +67,17 @@ namespace json_parser {
 
         // const version of operator[] 
         template <typename K>
-        JsonValue const& operator[](K&& key) const {
+        Json const& operator[](K&& key) const {
             if (this->get_type() != JsonValueType::object_t) {
                 throw std::runtime_error("[] operator can only be used on objects.");
             }
             return (*std::get<std::unique_ptr<JsonObject>>(m_data))[std::forward<K>(key)];
+        }
+
+        // Insert a key value pair into the json value in place 
+        template <typename K>
+        void emplace(K&& key, Json&& value) {
+            std::get<JsonObjectPtr>(m_data)->emplace(std::forward<K>(key), std::move(value));
         }
 
         // Deconstructor 

@@ -17,6 +17,37 @@ namespace json_parser {
 
     Json::Json(JsonObject&& data) : m_data(std::make_unique<JsonObject>(std::move(data))) {};
 
+    Json::Json(JsonValueType t) {
+        switch (t) {
+            case JsonValueType::int_t:
+                m_data = 0;
+                break;
+            case JsonValueType::double_t:
+                m_data = 0;
+                break;
+            case JsonValueType::unsigned_int_t:
+                m_data = 0;
+                break;
+            case JsonValueType::bool_t:
+                m_data = false;
+                break;
+            case JsonValueType::string_t:
+                m_data = std::make_unique<std::string>(std::string());
+                break;
+            case JsonValueType::array_t:
+                m_data = std::make_unique<JsonArray>(JsonArray());
+                break;
+            case JsonValueType::object_t:
+                m_data = std::make_unique<JsonObject>(JsonObject());
+                break;
+            case JsonValueType::null_t:
+                m_data = nullptr;
+                break;
+            default:
+                throw std::runtime_error("No implemented for this type.");
+        }
+    };
+
     Json::Json(Json&& other) noexcept {
         m_data = std::move(other.m_data);
         other.m_data = nullptr;
