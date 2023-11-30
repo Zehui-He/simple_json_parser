@@ -14,8 +14,8 @@ namespace json_parser {
         using JsonArray = std::vector<Json>;
         using JsonObjectPtr = std::unique_ptr<JsonObject>;
         using JsonArrayPtr = std::unique_ptr<JsonArray>;
-        using JsonObjectIterator = JsonObject::iterator;
-        using JsonObjectIterator_const = JsonObject::const_iterator;
+        // using JsonObjectIterator = JsonObject::iterator;
+        // using JsonObjectIterator_const = JsonObject::const_iterator;
 
         using JsonValue = std::variant<
             int, 
@@ -85,5 +85,7 @@ namespace json_parser {
 
     private:
         JsonValue m_data; 
+        std::ostream& outputObject(std::ostream& os) const;
+        std::ostream& outputArray(std::ostream& os) const;
     };
 }

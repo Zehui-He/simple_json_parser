@@ -2,7 +2,6 @@
 #include <string>
 #include <queue>
 #include "src/parser.h"
-#include "src/json.h"
 
 int main(int argc, char **argv) {
     std::string json_name(argv[1]);
@@ -13,7 +12,8 @@ int main(int argc, char **argv) {
     // auto& a = json["Person"]["Name"]["Last"];
     // std::cout << a <<std::endl;
 
-    std::cout << json["Address1"]["Country"] << std::endl;
+    // std::cout << json["Address1"]["Country"] << std::endl;
+    std::cout << json << std::endl;
 
     return 0;
 }

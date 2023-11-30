@@ -79,10 +79,10 @@ namespace json_parser {
                 os << *std::get<std::unique_ptr<std::string>>(json.m_data);
                 break;
             case JsonValueType::array_t:
-                os << "This is an array";
+                json.outputArray(os);
                 break;
             case JsonValueType::object_t:
-                os << "This is an objet";
+                json.outputObject(os);
                 break;
             case JsonValueType::null_t:
                 os << "null";
@@ -90,6 +90,36 @@ namespace json_parser {
             default:
                 throw std::runtime_error("No implemented for this type.");
         }
+        return os;
+    }
+
+    std::ostream& Json::outputObject(std::ostream& os) const {
+        auto it_begin = std::get<JsonObjectPtr>(m_data)->cbegin();
+        auto it_end = std::get<JsonObjectPtr>(m_data)->cend();
+        os << '{';
+        while (it_begin != it_end) {
+            os << it_begin->first << ':' << it_begin->second;
+            it_begin++;
+            if (it_begin != it_end) {
+                os << ',';
+            }
+        }
+        os << '}';
+        return os;
+    }
+
+    std::ostream& Json::outputArray(std::ostream& os) const {
+        auto it_begin = std::get<JsonArrayPtr>(m_data)->cbegin();
+        auto it_end = std::get<JsonArrayPtr>(m_data)->cend();
+        os << '[';
+        while (it_begin != it_end) {
+            os << *it_begin;
+            it_begin++;
+            if (it_begin != it_end) {
+                os << ',';
+            }
+        }
+        os << ']';
         return os;
     }
 }
