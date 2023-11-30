@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     // std::cout << a <<std::endl;
 
     // std::cout << json["Address1"]["Country"] << std::endl;
-    std::cout << json << std::endl;
+    std::cout << json["age3"].get_by_type<json_parser::JsonValueType::int_t>() << std::endl;
 
     return 0;
 }

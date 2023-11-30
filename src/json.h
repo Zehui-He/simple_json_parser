@@ -80,6 +80,29 @@ namespace json_parser {
             std::get<JsonObjectPtr>(m_data)->emplace(std::forward<K>(key), std::move(value));
         }
 
+        // Get the value helded by the json 
+        template <typename V> 
+        V& get() {
+            return std::get<V>(m_data);
+        }
+
+        template <typename V>
+        V const& read() const {
+            return std::get<V>(m_data);
+        }
+
+        template <JsonValueType T>
+        auto& get_by_type() {
+            using V = typename json_parser::JsonValueReturnType<T>::type;
+            return std::get<V>(m_data);
+        }
+
+        template <JsonValueType T>
+        auto const& get_by_type() const {
+            using V = typename json_parser::JsonValueReturnType<T>::type;
+            return std::get<V>(m_data);
+        }
+
         // Deconstructor 
         ~Json() = default;
 
