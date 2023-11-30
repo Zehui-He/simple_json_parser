@@ -1,0 +1,21 @@
+{
+    "Address1": {
+        "Country": "China",
+        "Province": "Shanghai",
+        "PostalCode": "200000",
+        "Road": "Zhangheng Road",
+        "Building": 19
+    },
+    "null_value": null,
+    "Person": {
+        "Name": {
+            "First": "John",
+            "Last": "Doe"
+        },
+        "Age": 24,
+        "Languages": [
+            "English",
+            "Chinese"
+        ]
+    }
+}
