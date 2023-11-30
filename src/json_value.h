@@ -16,7 +16,7 @@ namespace json_parser {
             double, 
             unsigned int,
             bool,
-            std::unique_ptr<JsonObj>, 
+            std::unique_ptr<JsonObj>, // We use unique pointer here because the size(or implementation) of JsonObj is unknown 
             std::unique_ptr<std::string>, 
             std::unique_ptr<std::vector<JsonValue>>,
             std::nullptr_t // To store a null_ptr 
@@ -61,6 +61,17 @@ namespace json_parser {
         }
         // Get the value type helded by the JsonValue 
         DataType get_type() const;
+
+        friend std::ostream& operator<<(std::ostream& os, const JsonValue& jsonvalue);
+
+        // This operator only apply to objects  
+        template <typename K>
+        JsonValue& operator[](K&& key) {
+            if (this->get_type() != JsonValue::OBJECT) {
+                throw std::runtime_error("The underlying data is not an object.");
+            }
+            return (*std::get<std::unique_ptr<JsonObj>>(data))[std::forward<K>(key)];
+        }
 
     private:
         Data data;
