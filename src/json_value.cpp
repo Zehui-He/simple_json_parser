@@ -41,4 +41,38 @@ namespace json_parser {
         size_t type = this->data.index();
         return static_cast<JsonValue::DataType>(type);
     }
+
+    std::ostream& operator<<(std::ostream& os, const JsonValue& jsonvalue) {
+        switch (jsonvalue.get_type()) {
+            case JsonValue::OBJECT:
+                os << "Object";
+                break;
+            case JsonValue::STRING:
+                os << *jsonvalue.read<std::unique_ptr<std::string>>();
+                break;
+            case JsonValue::DOUBLE:
+                os << jsonvalue.read<double>();
+                break;
+            case JsonValue::INT:
+                os << jsonvalue.read<int>();
+                break;
+            case JsonValue::UNSIGNED_INT:
+                os << jsonvalue.read<unsigned int>();
+                break;
+            case JsonValue::ARRAY:
+                os << "Array";
+                break;
+            case JsonValue::BOOL:
+                if (jsonvalue.read<bool>()) {
+                    os << "true";
+                } else {
+                    os << "false";
+                }
+                break;
+            default:
+                throw std::runtime_error("Show function of this type is not implemented.");
+        }
+        return os;
+    }
+
 }

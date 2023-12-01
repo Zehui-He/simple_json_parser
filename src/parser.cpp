@@ -99,16 +99,16 @@ namespace json_parser {
         it_begin++;
     }
 
-    JsonObj parseIntoJson(std::string const& content) {
+    Json parseIntoJson(std::string const& content) {
         auto it_begin = content.cbegin();
         auto it_end = content.cend();
         auto stack = std::stack<char>{};
-        JsonObj res = objectHandler(it_begin,it_end,stack);
+        Json res = objectHandler(it_begin,it_end,stack);
         return res;
     }
 
     // Convert the value into int, double or bool 
-    JsonValue stringToValue(std::string const& value) {
+    Json stringToValue(std::string const& value) {
         if (isdigit(value[0]) || value[0] == '-') {
             auto it = value.cbegin();
             while (it != value.cend()) {
@@ -131,7 +131,7 @@ namespace json_parser {
         } else if (value == "false") {
             return false;
         } else if (value.empty() || value == "null") {
-            return JsonValue();
+            return Json();
         }
         throw std::runtime_error("Cannot parse the value.");
     }
@@ -156,11 +156,11 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
-    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
+    Json vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
 
     // Handle values inside vector 
     // The ',' is not handle in this case to sign the vector is no finished 
-    JsonValue vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    Json vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         token.set(it_begin);
         while (it_begin != it_end) {
@@ -181,8 +181,8 @@ namespace json_parser {
     }
 
     // The vector handler should pass the tailing ']' 
-    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
-        std::vector<JsonValue> value_vec{};
+    Json vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+        Json::JsonArray value_vec{};
         while (it_begin != it_end) {
             if (*it_begin == '[') { // Start of a vector 
                 stack.push('[');
@@ -198,7 +198,7 @@ namespace json_parser {
                     safeIteratorIncrement(it_begin, it_end);
                     stack.pop();
                     // The vector is empty 
-                    if (value_vec[0].get_type() == JsonValue::null) {
+                    if (value_vec[0].get_type() == JsonValueType::null_t) {
                         value_vec.pop_back();
                     }
                     return std::move(value_vec);
@@ -209,7 +209,7 @@ namespace json_parser {
     }
 
     // The value handler should handle the tailing ','
-    JsonValue valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    Json valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
             if (*it_begin == ':') { // Start of value 
@@ -234,10 +234,10 @@ namespace json_parser {
     }
 
     // The object handler should handle the tailing '}' 
-    JsonObj objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    Json objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         json_parser::Token token{};
         std::string attribute_buff{};
-        JsonObj res{};
+        Json res{JsonValueType::object_t};
 
         while (it_begin != it_end) {
             if (*it_begin == '{') { // Start of object 
