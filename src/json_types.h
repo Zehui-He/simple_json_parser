@@ -18,6 +18,22 @@ namespace json_parser {
     template <JsonValueType V>
     struct json_value_impl_mapping;
 
+    template <JsonValueType V>
+    using json_value_impl_mapping_t = typename json_value_impl_mapping<V>::type;
+
+    // A trait that check if the value is a valid json type 
+    template <JsonValueType V>
+    struct is_json_value_type {
+        static const bool value = false;
+    };
+
+    template <JsonValueType V>
+    inline constexpr bool is_json_value_type_v = is_json_value_type<V>::value;
+
+    ///////////////////////////////////////////////////////////////////
+    //             Implementation of the above traits                //
+    ///////////////////////////////////////////////////////////////////
+
     template <>
     struct json_value_impl_mapping<int_t> {
         using type = int;
@@ -57,4 +73,45 @@ namespace json_parser {
     struct json_value_impl_mapping<null_t> {
         using type = std::nullptr_t;
     };
-}
+
+    template <>
+    struct is_json_value_type<int_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<double_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<unsigned_int_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<bool_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<array_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<string_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<object_t> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_value_type<null_t> {
+        static const bool value = true;
+    };
+
+} // namespace json_parser

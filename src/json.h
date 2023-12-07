@@ -15,8 +15,6 @@ namespace json_parser {
         using JsonArray = std::vector<Json>;
         using JsonObjectPtr = std::unique_ptr<JsonObject>;
         using JsonArrayPtr = std::unique_ptr<JsonArray>;
-        // using JsonObjectIterator = JsonObject::iterator;
-        // using JsonObjectIterator_const = JsonObject::const_iterator;
 
         // The data types stored in the varaint are called implementation types 
         // They are the true value type that stores the data 
@@ -95,15 +93,19 @@ namespace json_parser {
             return std::get<V>(m_data);
         }
 
+        // Get the value helded by the json using json type 
+        // The function would check if the given type is a json type at compile time 
         template <JsonValueType T>
         auto& get_by_type() {
-            using V = typename json_parser::json_value_impl_mapping<T>::type;
+            static_assert(is_json_value_type_v<T>, "This value is not a Json type.");
+            using V = typename json_parser::json_value_impl_mapping_t<T>;
             return std::get<V>(m_data);
         }
 
         template <JsonValueType T>
         auto const& get_by_type() const {
-            using V = typename json_parser::json_value_impl_mapping<T>::type;
+            static_assert(is_json_value_type_v<T>, "This value is not a Json type.");
+            using V = typename json_parser::json_value_impl_mapping_t<T>;
             return std::get<V>(m_data);
         }
 
