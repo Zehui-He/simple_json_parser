@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <iostream>
 #include "json_types.h"
+#include "json_traits.h"
 
 namespace json_parser {
     class Json {
@@ -17,6 +18,8 @@ namespace json_parser {
         // using JsonObjectIterator = JsonObject::iterator;
         // using JsonObjectIterator_const = JsonObject::const_iterator;
 
+        // The data types stored in the varaint are called implementation types 
+        // They are the true value type that stores the data 
         using JsonValue = std::variant<
             int, 
             double,
@@ -81,13 +84,14 @@ namespace json_parser {
         }
 
         // Get the value helded by the json 
+        // The input type must be an implmentation type otherwise no such function is instantiated 
         template <typename V> 
-        V& get() {
+        std::enable_if_t<is_json_impl_type_v<V>, V>& get() {
             return std::get<V>(m_data);
         }
 
         template <typename V>
-        V const& read() const {
+        std::enable_if_t<is_json_impl_type_v<V>, V> const& read() const {
             return std::get<V>(m_data);
         }
 
@@ -110,5 +114,42 @@ namespace json_parser {
         JsonValue m_data; 
         std::ostream& outputObject(std::ostream& os) const;
         std::ostream& outputArray(std::ostream& os) const;
+    }; // Json class 
+
+    // Implement the trait for implementation types 
+    template <>
+    struct is_json_impl_type<int> {
+        static const bool value = true;
     };
-}
+
+    template <>
+    struct is_json_impl_type<double> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_impl_type<unsigned int> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_impl_type<bool> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_impl_type<std::unique_ptr<std::string>> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_impl_type<Json::JsonObjectPtr> {
+        static const bool value = true;
+    };
+
+    template <>
+    struct is_json_impl_type<Json::JsonArrayPtr> {
+        static const bool value = true;
+    };
+
+} // namespace json_parser 
