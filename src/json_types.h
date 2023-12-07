@@ -14,46 +14,47 @@ namespace json_parser {
         null_t,
     };
 
+    // A trait that maps the JSON value type and the implementation type 
     template <JsonValueType V>
-    struct JsonValueReturnType;
+    struct json_value_impl_mapping;
 
     template <>
-    struct JsonValueReturnType<int_t> {
+    struct json_value_impl_mapping<int_t> {
         using type = int;
     };
 
     template <>
-    struct JsonValueReturnType<double_t> {
+    struct json_value_impl_mapping<double_t> {
         using type = double;
     };
     
     template <>
-    struct JsonValueReturnType<unsigned_int_t> {
+    struct json_value_impl_mapping<unsigned_int_t> {
         using type = unsigned int;
     };
 
     template <>
-    struct JsonValueReturnType<bool_t> {
+    struct json_value_impl_mapping<bool_t> {
         using type = bool;
     };
 
     template <>
-    struct JsonValueReturnType<string_t> {
+    struct json_value_impl_mapping<string_t> {
         using type = std::unique_ptr<std::string>;
     };
 
     template <>
-    struct JsonValueReturnType<array_t> {
+    struct json_value_impl_mapping<array_t> {
         using type = std::unique_ptr<std::vector<Json>>;
     };
 
     template <>
-    struct JsonValueReturnType<object_t> {
+    struct json_value_impl_mapping<object_t> {
         using type = std::unique_ptr<std::unordered_map<std::string, Json>>;
     };
 
     template <>
-    struct JsonValueReturnType<null_t> {
+    struct json_value_impl_mapping<null_t> {
         using type = std::nullptr_t;
     };
 }

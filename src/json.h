@@ -93,13 +93,13 @@ namespace json_parser {
 
         template <JsonValueType T>
         auto& get_by_type() {
-            using V = typename json_parser::JsonValueReturnType<T>::type;
+            using V = typename json_parser::json_value_impl_mapping<T>::type;
             return std::get<V>(m_data);
         }
 
         template <JsonValueType T>
         auto const& get_by_type() const {
-            using V = typename json_parser::JsonValueReturnType<T>::type;
+            using V = typename json_parser::json_value_impl_mapping<T>::type;
             return std::get<V>(m_data);
         }
 
