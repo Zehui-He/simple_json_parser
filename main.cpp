@@ -1,15 +1,14 @@
-#include <iostream>
-#include <string>
-#include <queue>
-#include "src/parser.h"
+#include <cassert>
+#include "src/json.h"
+#include "src/json_types.h"
 
-int main(int argc, char **argv) {
-    std::string json_name(argv[1]);
-    std::string content = json_parser::extractContnet(json_name);
-    std::cout << content << std::endl;
-
-    json_parser::Json json = json_parser::parseIntoJson(content);
-    std::cout << json << std::endl;
+int main() {
+    json_parser::Json origin_json{1};
+    assert(origin_json.get_type() == json_parser::JsonValueType::int_t);
+    json_parser::Json new_json{std::move(origin_json)};
+    assert(origin_json.get_type() == json_parser::JsonValueType::null_t);
+    assert(new_json.get_type() == json_parser::JsonValueType::int_t);
+    assert(new_json.get_by_type<json_parser::JsonValueType::int_t>() == 1);
 
     return 0;
 }

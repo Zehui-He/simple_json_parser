@@ -48,7 +48,7 @@ namespace json_parser {
 
         std::ifstream json_file(json_name);
         if (!json_file.is_open()) {
-            std::cout << "The file does not exist.\n";
+            throw std::runtime_error("The file does not exist.");
             return content;
         }
 
