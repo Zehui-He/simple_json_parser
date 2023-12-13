@@ -154,4 +154,9 @@ namespace json_parser {
         static const bool value = true;
     };
 
+    template <>
+    struct is_json_impl_type<std::nullptr_t> {
+        static const bool value = true;
+    };
+
 } // namespace json_parser 
