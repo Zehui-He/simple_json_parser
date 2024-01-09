@@ -158,9 +158,9 @@ To represent all the JSON value type, we need 8 concrete types. In my design, th
 | int_t         | int          | integer number    |
 | double_t      | double       | decimal number    |
 | unsigned_int_t| unsigned int       | large integer number    |
-| string_t      | std::string       | string    |
-| array_t       | std::vector<Json>       | array of Json values   |
-| object_t      | std::unordered_map<std::string, Json>       | string/JSON value pair   |
+| string_t      | std::unique_ptr\<std::string\>       | string    |
+| array_t       | std::unique_ptr<std::vector\<Json\>>       | array of Json values   |
+| object_t      | std::unique_ptr<std::unordered_map\<std::string, Json\>>       | string/JSON value pair   |
 | null_t        | std::nullptr_t       | null   |
 #### 2.2 How to store a JSON value? 
 In the previous section, we know that a JSON object can hold various types of values. To store the data, a brute force approach is having several data members that cover all JSON value types. However, such design is clearly memory ineffcient and it makes the data difficult to access or modify without introducing an error. A better approch is to store all data types in a single data member while keep tracking the type of the data that is being stored. In the C++ standard library, both `union type` and `std::variant` can achieve this. In this project, I decided to use `std::variant` to store the data because it is a type-safe version of `union` which can keep me away from accessing the data incorrectly. On the other hand, it does not require an extra data member to store the underlying data type. If such data member is needed, it potentially intoduce error because we may forget the modify it when we change the data type. This problem does not exist for `std::variant` as it tracks the data type it holds. It is very important to note that the size of the `std::variant` depends on the largest alternative. Its size can grow significantly when it holds large types. 
@@ -189,4 +189,26 @@ class Json {
     // Other members...
 }
 ```
-#### 2.3 Accessing methods 
+#### 2.3 Mapping between JSON value types and implementation types 
+As discussed in section 2.1, each JSON value type has a corresponding implementation type. In most of the cases, we prefer to use the JSON value types rather than the implementation types because they are easy to understand. On the other hand, the implementation types are usually verbose However, there is a problem that we must use the implementation types. For instance, the implementation types are the returning type of a function. To make our code more readable, it is necessary to make a mapping between the JSON value types and the implementation types. In this project, a type trait called `json_value_impl_mapping` is used. The design of this trait is very similar to the STL type trait, that is, when you specify a JSON value type in the template parameter, you can get the implementation types via its `type` member. 
+```
+template <JsonValueType V>
+struct json_value_impl_mapping;
+
+template <>
+struct json_value_impl_mapping<int_t> {
+    using type = int;
+};
+
+template <>
+struct json_value_impl_mapping<double_t> {
+    using type = double;
+};
+
+// Other implementations... 
+```
+In addition, to simplify the usage of this type trait, a helper class `is_json_value_type_v` is used to provider easier access. 
+```
+template <JsonValueType V>
+inline constexpr bool is_json_value_type_v = is_json_value_type<V>::value;
+```
