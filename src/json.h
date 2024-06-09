@@ -120,43 +120,27 @@ namespace json_parser {
 
     // Implement the trait for implementation types 
     template <>
-    struct is_json_impl_type<int> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<int> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<double> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<double> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<unsigned int> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<unsigned int> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<bool> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<bool> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<std::unique_ptr<std::string>> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<std::unique_ptr<std::string>> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<Json::JsonObjectPtr> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<Json::JsonObjectPtr> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<Json::JsonArrayPtr> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<Json::JsonArrayPtr> : std::true_type {};
 
     template <>
-    struct is_json_impl_type<std::nullptr_t> {
-        static const bool value = true;
-    };
+    struct is_json_impl_type<std::nullptr_t> : std::true_type {};
 
 } // namespace json_parser 

@@ -1,7 +1,5 @@
 #include <stdexcept>
 #include "json_value.h"
-#include "json_obj.h"
-#include "macros.h"
 
 namespace json_parser {
     // The default constructor will return a JsonValue object with null value 
@@ -9,13 +7,21 @@ namespace json_parser {
         this->data = nullptr;
     }
 
-    CONSTRUCT_WITH_DATA(int);
+    JsonValue::JsonValue(int i) {
+        this->data = i;
+    }
 
-    CONSTRUCT_WITH_DATA(double);
+    JsonValue::JsonValue(double d) {
+        this->data = d;
+    }
 
-    CONSTRUCT_WITH_DATA(unsigned int);
+    JsonValue::JsonValue(unsigned int i) {
+        this->data = i;
+    }
 
-    CONSTRUCT_WITH_DATA(bool);
+    JsonValue::JsonValue(bool b) {
+        this->data = b;
+    }
 
     JsonValue::JsonValue(JsonObj&& data) {
         this->data = std::make_unique<JsonObj>(std::move(data));

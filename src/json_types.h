@@ -1,5 +1,9 @@
 #pragma once 
 #include <cstddef>
+#include <type_traits>
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
 namespace json_parser {
     class Json;
@@ -75,43 +79,27 @@ namespace json_parser {
     };
 
     template <>
-    struct is_json_value_type<int_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<int_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<double_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<double_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<unsigned_int_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<unsigned_int_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<bool_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<bool_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<array_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<array_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<string_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<string_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<object_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<object_t> : std::true_type {};
 
     template <>
-    struct is_json_value_type<null_t> {
-        static const bool value = true;
-    };
+    struct is_json_value_type<null_t> : std::true_type {};
 
 } // namespace json_parser
