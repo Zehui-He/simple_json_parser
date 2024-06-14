@@ -23,16 +23,16 @@ namespace json_parser {
         this->data = b;
     }
 
-    JsonValue::JsonValue(JsonObj&& data) {
-        this->data = std::make_unique<JsonObj>(std::move(data));
+    JsonValue::JsonValue(Json&& data) {
+        this->data = std::make_unique<Json>(std::move(data));
     }
 
     JsonValue::JsonValue(std::string&& data) {
-        this->data = std::make_unique<std::string>(std::move(data));
+        this->data = std::forward<std::string>(data);
     }
 
     JsonValue::JsonValue(std::vector<JsonValue>&& data) {
-        this->data = std::make_unique<std::vector<JsonValue>>(std::move(data));
+        this->data = std::forward<std::vector<JsonValue>>(std::move(data));
     }
 
     // Move constructor 

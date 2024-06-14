@@ -24,20 +24,20 @@ namespace json_parser {
         }
 
         // Increase the position of start by 1 
-        void advance() {
+        inline void advance() {
             this->start++;
         }
 
-        bool empty() const {
+        inline bool empty() const {
             return size == 0;
         }
 
-        void reset() {
+        inline void reset() {
             size = 0;
         };
 
         // Increase the size of token by 1 
-        void operator++(int) {
+        inline void operator++(int) {
             this->size++;
         }
     };

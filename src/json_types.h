@@ -6,7 +6,8 @@
 #include <vector>
 
 namespace json_parser {
-    class Json;
+    class Json; // Forward declaration 
+    
     enum JsonValueType : size_t {
         int_t,
         double_t,

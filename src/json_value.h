@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace json_parser {
-    class JsonObj;
+    class Json;
 
     class JsonValue {
     public:
@@ -15,9 +15,9 @@ namespace json_parser {
             double, 
             unsigned int,
             bool,
-            std::unique_ptr<JsonObj>, // We use unique pointer here because the size(or implementation) of JsonObj is unknown 
-            std::unique_ptr<std::string>, 
-            std::unique_ptr<std::vector<JsonValue>>,
+            std::unique_ptr<Json>, // We use unique pointer here because the size(or implementation) of JsonObj is unknown 
+            std::string, 
+            std::vector<JsonValue>,
             std::nullptr_t // To store a null_ptr 
         >;
 
@@ -41,7 +41,7 @@ namespace json_parser {
         JsonValue(double data);
         JsonValue(unsigned int data);
         JsonValue(bool data);
-        JsonValue(JsonObj&& data);
+        JsonValue(Json&& data);
         JsonValue(std::string&& data);
         JsonValue(std::vector<JsonValue>&& data);
         // Move constructor 
@@ -69,7 +69,7 @@ namespace json_parser {
             if (this->get_type() != JsonValue::OBJECT) {
                 throw std::runtime_error("The underlying data is not an object.");
             }
-            return (*std::get<std::unique_ptr<JsonObj>>(data))[std::forward<K>(key)];
+            return (*std::get<std::unique_ptr<Json>>(data))[std::forward<K>(key)];
         }
 
     private:
