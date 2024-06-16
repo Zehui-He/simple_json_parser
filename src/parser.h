@@ -15,4 +15,4 @@ namespace json_parser {
 
     // Generate json object with string iterator. 
     Json objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
-}
+} // namespace json_parser
