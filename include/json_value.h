@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 #include <stdexcept>
-#include "json_fwd.h"
+#include <json_fwd.h>
 
 namespace json_parser {
     class JsonValue {

@@ -1,7 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "src/json.h"
-#include "src/parser.h"
+#include <parser.h>
 
 int main(int argc, char* argv[]) {
     std::string file = argv[1];

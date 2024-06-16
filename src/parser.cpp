@@ -1,5 +1,5 @@
 #include <iostream>
-#include "parser.h"
+#include <parser.h>
 
 namespace json_parser {
     class Token {

@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
-#include "json_value.h"
-#include "json.h"
+#include <json_value.h>
+#include <json.h>
 
 namespace json_parser {
     JsonValue::JsonValue() noexcept : m_value(nullptr) {};

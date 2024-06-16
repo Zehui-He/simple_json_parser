@@ -1,10 +1,10 @@
 # This document is outdated! Please do not use! 
 # A simple JSON parser implemented by C++ 
 
-A simple JSON parser which take the JSON file name via command line argument as input and store the result in an unoreded map. 
+A simple JSON parser which take the JSON file name via command line argument as input and store the result in an unoreded map of string and JsonValue pairs. 
 
 ## Assumptions:
-In this project, it is assumed that the given JSON file is always valid. This is because handling invalid JSON files would introduce lots of edges cases that make the project extremely complex. 
+In this project, it is assumed that the given JSON file is always valid. This is because handling invalid JSON files would introduce lots of edges cases that make the project extremely complex. If the input file is not legit, a runtime error will be thrown. 
 
 
 ## Functionality:
@@ -17,6 +17,7 @@ Exception: If the given file does not exist, a `std::runtime_error` is thrown.
 ```
 #include <iostream>
 #include <json_parser/parser.h>
+#include <json_parser/Json.h>
 
 int main(int argc, char **argv) {
     std::string json_name(argv[1]);
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
 }
 ```
 
-### 2. Default construction of Json object 
+### 2. Default construction of JsonValue 
 When a Json object is default constructed, it holds a null pointer, indicating that it contains no value. 
 ```
 #include <cassert>
