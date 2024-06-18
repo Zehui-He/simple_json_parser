@@ -1,79 +1,87 @@
-#pragma once 
-#include <string>
-#include <unordered_map>
-#include <memory>
+#pragma once
 #include <variant>
-#include <vector>
+#include <stdexcept>
+#include "json_fwd.h"
 
 namespace json_parser {
-    class JsonObj;
-
     class JsonValue {
     public:
         using Data = std::variant<
             int,
-            double, 
+            double,
             unsigned int,
             bool,
-            std::unique_ptr<JsonObj>, // We use unique pointer here because the size(or implementation) of JsonObj is unknown 
-            std::unique_ptr<std::string>, 
-            std::unique_ptr<std::vector<JsonValue>>,
-            std::nullptr_t // To store a null_ptr 
+            std::string,
+            std::unique_ptr<Json>, 
+            JsonArray,
+            std::nullptr_t
         >;
 
-        enum DataType : size_t {
-            INT,
-            DOUBLE,
-            UNSIGNED_INT,
-            BOOL,
-            OBJECT,
-            STRING,
-            ARRAY,
-            null
-        };
+        JsonValue() noexcept;
 
-        // JsonValue is not copyable 
-        JsonValue(JsonValue&) = delete;
-        JsonValue& operator=(JsonValue&) = delete;
+        JsonValue(int i) noexcept;
 
-        JsonValue();
-        JsonValue(int data);
-        JsonValue(double data);
-        JsonValue(unsigned int data);
-        JsonValue(bool data);
-        JsonValue(JsonObj&& data);
-        JsonValue(std::string&& data);
-        JsonValue(std::vector<JsonValue>&& data);
-        // Move constructor 
+        JsonValue(double d) noexcept;
+
+        JsonValue(unsigned int u) noexcept;
+
+        JsonValue(bool b) noexcept;
+
+        JsonValue(std::nullptr_t n) noexcept;
+
+        template <typename T, typename Enable = std::enable_if_t<std::is_convertible_v<T, std::string>>>
+        JsonValue(T&& str) noexcept : m_value(std::string(std::forward<T>(str))) {}
+
+        JsonValue(std::vector<JsonValue>&& v) noexcept;
+
+        JsonValue(Json&& json) noexcept;
+
+        // Move constructor
         JsonValue(JsonValue&& other) noexcept;
-        // Destructor 
-        ~JsonValue();
-        // Give a const reference of the data 
-        template <typename ReturnType>
-        const ReturnType& read() const {
-            return std::get<ReturnType>(data);
-        }
-        // Give a reference of the data 
-        template <typename ReturnType>
-        ReturnType& get() {
-            return std::get<ReturnType>(data);
-        }
-        // Get the value type helded by the JsonValue 
-        DataType get_type() const;
 
-        friend std::ostream& operator<<(std::ostream& os, const JsonValue& jsonvalue);
+        // Move assignment
+        JsonValue& operator=(JsonValue&& other) noexcept;
 
-        // This operator only apply to objects  
-        template <typename K>
-        JsonValue& operator[](K&& key) {
-            if (this->get_type() != JsonValue::OBJECT) {
-                throw std::runtime_error("The underlying data is not an object.");
-            }
-            return (*std::get<std::unique_ptr<JsonObj>>(data))[std::forward<K>(key)];
+        // Copy constructor
+        JsonValue(JsonValue const& other);
+
+        // Copy assignment operator
+        JsonValue& operator=(const JsonValue& other);
+
+        // Get the type of value that the JsonValue currently holds
+        JsonValueType get_type() const;
+
+        // Get the underlying value of the JsonValue.
+        // Return a reference of the value.
+        template <typename T, typename Enable = std::enable_if_t<is_json_impl_type_v<T>, void>>
+        T& get() {
+            return std::get<T>(m_value);
         }
+
+        template <JsonValueType T, typename Enable = std::enable_if_t<is_json_value_type_v<T>, void>>
+        data_impl_mapping_t<T>& get() {
+            return std::get<data_impl_mapping_t<T>>(m_value);
+        }
+
+        // Read the underlying value of the JsonValue.
+        // Return a const reference of the value.
+        template <typename T, typename Enable = std::enable_if_t<is_json_impl_type_v<T>, void>>
+        T const& read() const {
+            return std::get<T>(m_value);
+        }
+
+        template <JsonValueType T, typename Enable = std::enable_if_t<is_json_value_type_v<T>, void>>
+        data_impl_mapping_t<T> const& read() const {
+            return std::get<data_impl_mapping_t<T>>(m_value);
+        }
+
+    friend std::ostream& operator<<(std::ostream& os, const JsonValue& jsonvalue);
 
     private:
-        Data data;
-        friend void printJsonVec(JsonValue const& item, int depth);
-    };
-}
+        Data m_value;
+
+        void copy_helper(JsonValue& t, JsonValue const& other);
+        void print_vec_helper(std::ostream& os) const noexcept; 
+        void print_string_helper(std::ostream& os) const noexcept; 
+    }; // strcut json_value 
+} // namespace json_parser

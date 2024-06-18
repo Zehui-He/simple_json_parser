@@ -24,20 +24,20 @@ namespace json_parser {
         }
 
         // Increase the position of start by 1 
-        void advance() {
+        inline void advance() {
             this->start++;
         }
 
-        bool empty() const {
+        inline bool empty() const {
             return size == 0;
         }
 
-        void reset() {
+        inline void reset() {
             size = 0;
         };
 
         // Increase the size of token by 1 
-        void operator++(int) {
+        inline void operator++(int) {
             this->size++;
         }
     };
@@ -108,7 +108,7 @@ namespace json_parser {
     }
 
     // Convert the value into int, double or bool 
-    Json stringToValue(std::string const& value) {
+    JsonValue stringToValue(std::string const& value) {
         if (isdigit(value[0]) || value[0] == '-') {
             auto it = value.cbegin();
             while (it != value.cend()) {
@@ -156,11 +156,11 @@ namespace json_parser {
         throw std::runtime_error("Syntax error: \" is not enclosed");
     }
 
-    Json vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
+    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack);
 
     // Handle values inside vector 
     // The ',' is not handle in this case to sign the vector is no finished 
-    Json vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    JsonValue vectorValueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         token.set(it_begin);
         while (it_begin != it_end) {
@@ -181,8 +181,8 @@ namespace json_parser {
     }
 
     // The vector handler should pass the tailing ']' 
-    Json vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
-        Json::JsonArray value_vec{};
+    JsonValue vectorHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+        JsonArray value_vec{};
         while (it_begin != it_end) {
             if (*it_begin == '[') { // Start of a vector 
                 stack.push('[');
@@ -209,7 +209,7 @@ namespace json_parser {
     }
 
     // The value handler should handle the tailing ','
-    Json valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
+    JsonValue valueHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         Token token{};
         while (it_begin != it_end) {
             if (*it_begin == ':') { // Start of value 
@@ -237,7 +237,7 @@ namespace json_parser {
     Json objectHandler(std::string::const_iterator& it_begin, std::string::const_iterator& it_end, std::stack<char>& stack) {
         json_parser::Token token{};
         std::string attribute_buff{};
-        Json res{JsonValueType::object_t};
+        Json res{};
 
         while (it_begin != it_end) {
             if (*it_begin == '{') { // Start of object 
@@ -249,7 +249,7 @@ namespace json_parser {
                 continue;
             }
             else if (*it_begin == ':') { // Start of vlaue 
-                res.emplace(attribute_buff, std::move(valueHandler(it_begin, it_end, stack)));
+                res.insert(attribute_buff, std::move(valueHandler(it_begin, it_end, stack)));
                 continue;
             } 
             else if (*it_begin == '}') { // End of object 
@@ -269,4 +269,4 @@ namespace json_parser {
         return res;
     }
 
-}
+} // namespace json_parser
