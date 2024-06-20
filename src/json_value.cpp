@@ -43,6 +43,37 @@ namespace json_parser {
         return *this;
     }
 
+    JsonValue::JsonValue(JsonValueType t) {
+        switch (t) {
+            case JsonValueType::int_t:
+                m_value = 0;
+                break;
+            case JsonValueType::double_t:
+                m_value = 0.0;
+                break;
+            case JsonValueType::unsigned_int_t:
+                m_value = 0u;
+                break;
+            case JsonValueType::bool_t:
+                m_value = false;
+                break;
+            case JsonValueType::string_t:
+                m_value = "";
+                break;
+            case JsonValueType::array_t:
+                m_value = JsonArray{};
+                break;
+            case JsonValueType::object_t:
+                m_value = std::make_unique<Json>(Json{});
+                break;
+            case JsonValueType::null_t:
+                m_value = nullptr;
+                break;
+            default:
+                throw std::runtime_error("No implementation for this type.");
+        }
+    }
+
     // Get the type of value that the JsonValue currently holds 
     JsonValueType JsonValue::get_type() const {
         return static_cast<JsonValueType>(this->m_value.index());

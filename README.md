@@ -1,10 +1,9 @@
-# This document is outdated! Please do not use! 
-# A simple JSON parser implemented by C++ 
+# A simple Json parser implemented by C++ 
 
-A simple JSON parser which take the JSON file name via command line argument as input and store the result in an unoreded map of string and JsonValue pairs. 
+A simple Json parser which take the Json file name via command line argument as input and store the result in an unoreded map of string and JsonValue pairs. 
 
 ## Assumptions:
-In this project, it is assumed that the given JSON file is always valid. This is because handling invalid JSON files would introduce lots of edges cases that make the project extremely complex. If the input file is not legit, a runtime error will be thrown. 
+In this project, it is assumed that the given Json file is always valid. This is because handling invalid Json files would introduce lots of edges cases that make the project extremely complex. If the input file is not legit, a runtime error will be thrown. 
 
 
 ## Functionality:
@@ -16,8 +15,8 @@ To construct a Json object from a file, the first step we do is extrating the co
 Exception: If the given file does not exist, a `std::runtime_error` is thrown. 
 ```
 #include <iostream>
-#include <json_parser/parser.h>
-#include <json_parser/Json.h>
+#include <parser.h>
+#include <json.h>
 
 int main(int argc, char **argv) {
     std::string json_name(argv[1]);
@@ -29,117 +28,128 @@ int main(int argc, char **argv) {
 }
 ```
 
-### 2. Default construction of JsonValue 
+### 2. Default construction of JsonValue object 
 When a Json object is default constructed, it holds a null pointer, indicating that it contains no value. 
 ```
 #include <cassert>
-#include <json_parser/parser.h>
-#include <json_parser/json_types.h>
+#include <parser.h>
+#include <json_value.h>
 
 int main() {
-    json_parser::Json j;
-    assert(j.get_type() == json_parser::JsonValueType::null_t);
+    json_parser::JsonValue jv;
+    assert(jv.get_type() == json_parser::JsonValueType::null_t);
+    assert(jv.get<json_parser::null_t>() == nullptr);
 
     return 0;
 }
 ```
 
-### 3. Construct a Json object with a given value 
-It should be noted that some types can only be constructed by rvalue reference. This design is to minimise the unnecessary copy of the data. **Due this reason, the Json class is not copy constructable.**
+### 3. Construct a JsonValue object with a given value 
+It should be noted that some types can only be constructed with rvalue reference. This design is to minimise the unnecessary copy of the data. 
 ```
 #include <vector>
 #include <unordered_map>
-#include <json_parser/json.h>
+#include <json_value.h>
+#include <json.h>
 
 int main() {
     // Initialize with int 
-    json_parser::Json j1(1); 
+    json_parser::JsonValue j1(1); 
 
     // Initialize with double 
-    json_parser::Json j2(1.2); 
+    json_parser::JsonValue j2(1.2); 
 
     // Initialize with unsigned int 
-    json_parser::Json j3(1U); 
+    json_parser::JsonValue j3(1u); 
 
     // Initialize with bool 
-    json_parser::Json j4(true); 
+    json_parser::JsonValue j4(true); 
 
     // Initialize with string literal
-    json_parser::Json j5("Hello"); 
+    json_parser::JsonValue j5("Hello"); 
     
     // Initialize with string&& 
     std::string str("Good");
-    json_parser::Json j6(std::move(str)); 
+    json_parser::JsonValue j6(std::move(str)); 
 
-    // Initialize with std::vector<Json>&& 
-    std::vector<Json> j_vec{};
-    json_parser::Json j7(std::move(j_vec)); 
+    // Initialize with JsonArray&& 
+    json_parser::JsonArray j_vec{1, 1u, true, nullptr};
+    json_parser::JsonValue j7(std::move(j_vec)); 
 
-    // Initialize with std::unordered_map<std::string, Json>&& 
-    std::unordered_map<std::string, Json> j_map{};
-    json_parser::Json j8(std::move(j_map)); 
+    // Initialize with Json&& 
+    json_parser::Json j_obj;
+    json_parser::JsonValue j8(std::move(j_obj)); 
 
     // Initialize with nullptr 
-    json_parser::Json j9(nullptr); 
+    json_parser::JsonValue j9(nullptr); 
 
     return 0;
 }
 ```
-### 4. Construct a Json object with JsonValueType 
-Construct a Json object which hold a defalt value of the given JsonValueType. The default value for int_t, double_t and unsigned_int_t is 0. The default value for bool_t is false. The default value for string_t is empty string. The default value for array_t is an empty vector of type `std::vector<Json>`. The default value for object_t is an empty map of type `std::unordered_map<std::string, Json>`. The default value for null_t is nullptr. 
+### 4. Construct a JsonValue object with given JsonValueType 
+Construct a JsonValue object which hold a defalt value of the given JsonValueType. The default value for int_t, double_t and unsigned_int_t is 0. The default value for bool_t is false. The default value for string_t is empty string. The default value for array_t is an empty vector of type `JsonArray`. The default value for object_t is an unique pointer of type `std::unique_ptr<Json>`. The default value for null_t is nullptr. 
 ```
-#include <json_parser/json.h>
-#include <json_parser/json_types.h>
+#include <cassert>
+#include <json.h>
+#include <json_value_type.h>
 
 int main() {
     // Initialize with int_t 
-    json_parser::Json j1(json_parser::JsonValueType::int_t); 
+    json_parser::JsonValue jv1(json_parser::JsonValueType::int_t); 
+    assert(jv1.get<json_parser::int_t>() == 0);
 
     // Initialize with double_t
-    json_parser::Json j2(json_parser::JsonValueType::double_t); 
+    json_parser::JsonValue jv2(json_parser::JsonValueType::double_t); 
+    assert(jv2.get<json_parser::double_t>() == 0);
 
     // Initialize with unsigned int 
-    json_parser::Json j3(json_parser::JsonValueType::unsigned_int_t); 
+    json_parser::JsonValue jv3(json_parser::JsonValueType::unsigned_int_t); 
+    assert(jv3.get<json_parser::unsigned_int_t>() == 0);
 
     // Initialize with bool_t 
-    json_parser::Json j4(json_parser::JsonValueType::bool_t); 
+    json_parser::JsonValue jv4(json_parser::JsonValueType::bool_t); 
+    assert(jv4.get<json_parser::bool_t>() == false);
 
     // Initialize with string_t
-    json_parser::Json j5(json_parser::JsonValueType::string_t); 
+    json_parser::JsonValue jv5(json_parser::JsonValueType::string_t); 
+    assert(jv5.get<json_parser::string_t>() == "");
     
     // Initialize with array_t
-    json_parser::Json j6(json_parser::JsonValueType::array_t); 
+    json_parser::JsonValue jv6(json_parser::JsonValueType::array_t); 
+    assert(jv6.get<json_parser::array_t>().size() == 0);
 
     // Initialize with object_t
-    json_parser::Json j7(json_parser::JsonValueType::object_t); 
+    json_parser::JsonValue jv7(json_parser::JsonValueType::object_t); 
+    assert(jv7.get<json_parser::object_t>()->size() == 0);
 
     // Initialize with null_t
-    json_parser::Json j8(json_parser::JsonValueType::null_t); 
+    json_parser::JsonValue jv8(json_parser::JsonValueType::null_t); 
+    assert(jv8.get<json_parser::null_t>() == nullptr);
 
     return 0;
 }
 ```
 ### 5. Move construction 
-The move constructed Json object will take the ownership of data of the orginal one. The orginal data afer move construction should hold a nullptr, indicating that it holds no data. 
+The move constructed JsonValue object will take the ownership of data of the orginal one. The orginal data afer move construction should hold a nullptr, indicating that it holds no data. 
 ```
 #include <cassert>
-#include <json_parser/parser.h>
-#include <json_parser/json_types.h>
+#include <parser.h>
+#include <json_value_type.h>
+#include <json_value.h>
 
 int main() {
-    json_parser::Json origin_json{1};
-    assert(origin_json.get_type() == json_parser::JsonValueType::int_t);
-    json_parser::Json new_json{std::move(origin_json)};
-    assert(origin_json.get_type() == json_parser::JsonValueType::null_t);
-    assert(new_json.get_type() == json_parser::JsonValueType::int_t);
-    assert(new_json.get_by_type<json_parser::JsonValueType::int_t>() == 1);
+    json_parser::JsonValue original{1};
+    json_parser::JsonValue new_jv{std::move(original)};
+    assert(original.get_type() == json_parser::JsonValueType::null_t);
+    assert(new_jv.get_type() == json_parser::JsonValueType::int_t);
+    assert(new_jv.get<json_parser::int_t>() == 1);
 
     return 0;
 }
 ```
 ## Design:
 ### 1. JsonValueType 
-The JsonValueType is a enumerated class which represents the value types that a JSON object can hold. For example, number, null, array and object. However, the number type can be further divided into three types: int, double and unsigned int. As a result, there are 8 JSON value types in total. 
+The JsonValueType is a enumerated class which represents the value types that a Json can hold. For example, number, null, array and object. However, the number type can be further divided into three types: int, double and unsigned int. As a result, there are 8 Json value types in total. 
 ```
 enum JsonValueType : size_t {
     int_t,              // for integer number 
@@ -152,24 +162,24 @@ enum JsonValueType : size_t {
     null_t,             // for null 
 };
 ```
-### 2. Json 
-#### 2.1 How to represent a JSON value? 
-To represent all the JSON value type, we need 8 concrete types. In my design, these concrete types are called **implementation types**, indicating they are the implmentation of the JSON types. The mapping between JSON value types and implementation types are shown in this table.
-| JSON value type| implementation type | Description|
+### 2. JsonValue class  
+#### 2.1 How to implement all JsonValueType in C++? 
+To represent all the Json value type, we need 8 concrete types. In my design, these concrete types are called **implementation types**, indicating they are the implmentation of the JsonValueType. The mapping between JsonValueType and implementation types are shown in this table.
+| Json value type| implementation type | Description|
 | :---          |    :----:    |          ---:     |
 | int_t         | int          | integer number    |
 | double_t      | double       | decimal number    |
 | unsigned_int_t| unsigned int       | large integer number    |
-| string_t      | std::unique_ptr\<std::string\>       | string    |
-| array_t       | std::unique_ptr<std::vector\<Json\>>       | array of Json values   |
-| object_t      | std::unique_ptr<std::unordered_map\<std::string, Json\>>       | string/JSON value pair   |
+| string_t      | std::string     | string    |
+| array_t       | std::vector\<JsonValue\>       | array of Json values   |
+| object_t      | std::unique_ptr<std::unordered_map\<std::string, JsonValue\>>       | string/JsonValue pair   |
 | null_t        | std::nullptr_t       | null   |
-#### 2.2 How to store a JSON value? 
-In the previous section, we know that a JSON object can hold various types of values. To store the data, a brute force approach is having several data members that cover all JSON value types. However, such design is clearly memory ineffcient and it makes the data difficult to access or modify without introducing an error. A better approch is to store all data types in a single data member while keep tracking the type of the data that is being stored. In the C++ standard library, both `union type` and `std::variant` can achieve this. In this project, I decided to use `std::variant` to store the data because it is a type-safe version of `union` which can keep me away from accessing the data incorrectly. On the other hand, it does not require an extra data member to store the underlying data type. If such data member is needed, it potentially intoduce error because we may forget the modify it when we change the data type. This problem does not exist for `std::variant` as it tracks the data type it holds. It is very important to note that the size of the `std::variant` depends on the largest alternative. Its size can grow significantly when it holds large types. 
+#### 2.2 How to store a Json value? 
+In the previous section, we know that a JsonValue can hold various types of values. To store the data, a brute force approach is having several data members that cover all Json value types. However, such design is clearly memory ineffcient and it makes the data difficult to access or modify without introducing an error. A better approch is to store all data types in a single data member while keep tracking the type of the data that is being stored. In the C++ standard library, both `union type` and `std::variant` can achieve this. In this project, I decided to use `std::variant` to store the data because it is a type-safe version of `union` which can keep me away from accessing the data incorrectly. On the other hand, it does not require an extra data member to store the underlying data type. If such data member is needed, it potentially intoduce error because we may forget the modify it when we change the data type. This problem does not exist for `std::variant` as it tracks the data type it holds. It is very important to note that the size of the `std::variant` depends on the largest alternative. Its size can grow significantly when it holds large types. 
 
-I wrapped the complex types with unique pointer for two reasons. Firstly, I don't want the complex data being copied. Secondly, the Json object should be respsible for freeing its data. With the unique pointer, we can guarantee the data is being freed when the Json object go out of scope. 
+I wrapped the Json object with unique pointer because the definition of Json is incomplete at the moment it is used in JsonValue. 
 
-NOTE: Since C++ standard says that `std::variant` cannot hold `void`, I used a null pointer to represents the null JSON value.  
+NOTE: Since C++ standard says that `std::variant` cannot hold `void`, I used a null pointer to represents the null Json value.  
 ```
 class Json {
     // Other members...
@@ -179,9 +189,9 @@ class Json {
         double,
         unsigned int, 
         bool,
-        std::unique_ptr<std::string>,
-        std::unique_ptr<JsonArray>,
-        std::unique_ptr<JsonObject>,
+        std::string,
+        JsonArray,
+        std::unique_ptr<Json>,
         std::nullptr_t
     >; 
 
@@ -191,26 +201,42 @@ class Json {
     // Other members...
 }
 ```
-#### 2.3 Mapping between JSON value types and implementation types 
-As discussed in section 2.1, each JSON value type has a corresponding implementation type. In most of the cases, we prefer to use the JSON value types rather than the implementation types because they are easy to understand. On the other hand, the implementation types are usually verbose However, there is a problem that we must use the implementation types. For instance, the implementation types are the returning type of a function. To make our code more readable, it is necessary to make a mapping between the JSON value types and the implementation types. In this project, a type trait called `json_value_impl_mapping` is used. The design of this trait is very similar to the STL type trait, that is, when you specify a JSON value type in the template parameter, you can get the implementation types via its `type` member. 
+#### 2.3 How to check if a type is an implementation type? 
+When we construct functions for JsonValue types, we often want to use templates because we don't want to construct a separate function for each implementation type. A problem raises when we write template function: the type of the template has no constraint such that it can generate functions for types that is not an implmentation type. A detail example can see section 2.5. To address the issue, a `is_json_impl_type` trait is used for checking if a given type is implementation type. 
 ```
-template <JsonValueType V>
-struct json_value_impl_mapping;
+template <typename T>
+struct is_json_impl_type : std::false_type {}; 
+
+template <typename T>
+inline constexpr bool is_json_impl_type_v = is_json_impl_type<T>::value;
 
 template <>
-struct json_value_impl_mapping<int_t> {
+struct is_json_impl_type<int> : std::true_type {};
+
+// Other specializations...
+```
+#### 2.4 Mapping between Json value types and implementation types 
+As discussed in section 2.1, each Json value type has a corresponding implementation type. In most of the cases, we prefer to use the Json value types rather than the implementation types because they are easy to understand. On the other hand, the implementation types are usually verbose. However, there is a problem that we must use the implementation types. For instance, users need to specify the returning type of the 'get' function. To make our code more readable, it is necessary to make a mapping between the Json value types and the implementation types. In this project, a type trait called `data_impl_mapping` is used. The design of this trait is very similar to the STL type trait, that is, when you specify a Json value type in the template parameter, you can get the implementation types via its `type` member. 
+```
+template <JsonValueType T>
+struct data_impl_mapping;
+
+template <>
+struct data_impl_mapping<JsonValueType::int_t> {
     using type = int;
 };
 
 template <>
-struct json_value_impl_mapping<double_t> {
+struct data_impl_mapping<JsonValueType::double_t> {
     using type = double;
 };
 
-// Other implementations... 
+// Other specializations... 
 ```
-In addition, to simplify the usage of this type trait, a helper class `is_json_value_type_v` is used to provider easier access. 
+In addition, to simplify the usage of this type trait, a helper expression `data_impl_mapping_t` is used to provider easier access. 
 ```
 template <JsonValueType V>
-inline constexpr bool is_json_value_type_v = is_json_value_type<V>::value;
+using data_impl_mapping_t = typename data_impl_mapping<T>::type;
 ```
+<!-- #### 2.5 Data access 
+To get a reference of the data held by `std::variant` object, we need to use the `std::get` function. The use of `std::get` function will required the user to specify the return type. For example, if we want to get an `int&`, we need to use the function like this `std::get<int>(variant)`. As we have several implmentation types, it is clear that we don't want to write the  -->

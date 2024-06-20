@@ -48,6 +48,9 @@ namespace json_parser {
         // Copy assignment operator
         JsonValue& operator=(const JsonValue& other);
 
+        // Construct JsonValue with given data type 
+        JsonValue(JsonValueType t);
+
         // Get the type of value that the JsonValue currently holds
         JsonValueType get_type() const;
 
